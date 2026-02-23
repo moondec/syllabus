@@ -1,4 +1,6 @@
 import React from 'react';
+import { Info } from 'lucide-react';
+import MultiSelectDropdown from './MultiSelectDropdown';
 
 const fields = [
     { key: 'nazwa_przedmiotu', label: 'Nazwa przedmiotu', desc: 'Pełna nazwa kursu/modułu', type: 'text' },
@@ -20,9 +22,9 @@ const fields = [
     { key: 'wiedza', label: 'Wiedza (Opisowo)', desc: 'Opisowe efekty w kategorii WIEDZA', type: 'textarea' },
     { key: 'umiejetnosci', label: 'Umiejętności (Opisowo)', desc: 'Opisowe efekty w kategorii UMIEJĘTNOŚCI', type: 'textarea' },
     { key: 'kompetencje', label: 'Kompetencje społeczne (Opisowo)', desc: 'Opisowe efekty w kategorii KOMPETENCJE', type: 'textarea' },
-    { key: 'learning_outcomesW', label: 'Symbole: WIEDZA', desc: 'Symbole efektów kierunkowych (W)', type: 'text' },
-    { key: 'learning_outcomesU', label: 'Symbole: UMIEJĘTNOŚCI', desc: 'Symbole efektów kierunkowych (U)', type: 'text' },
-    { key: 'learning_outcomesK', label: 'Symbole: KOMPETENCJE', desc: 'Symbole efektów kierunkowych (K)', type: 'text' }
+    { key: 'learning_outcomesW', label: 'Symbole: WIEDZA', desc: 'Symbole efektów kierunkowych (W)', type: 'multi-select', category: 'W' },
+    { key: 'learning_outcomesU', label: 'Symbole: UMIEJĘTNOŚCI', desc: 'Symbole efektów kierunkowych (U)', type: 'multi-select', category: 'U' },
+    { key: 'learning_outcomesK', label: 'Symbole: KOMPETENCJE', desc: 'Symbole efektów kierunkowych (K)', type: 'multi-select', category: 'K' }
 ];
 
 export default function SyllabusForm({ data, onChange }) {
@@ -36,10 +38,7 @@ export default function SyllabusForm({ data, onChange }) {
             {(data.ref_kierunkowe || data.ref_weryfikacja) && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 space-y-4 shadow-sm">
                     <h4 className="font-bold text-amber-800 flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="id-light-bulb" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <Info className="w-5 h-5" />
                         Informacje pomocnicze z programu studiów
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -88,6 +87,13 @@ export default function SyllabusForm({ data, onChange }) {
                                         placeholder={f.placeholder || ''}
                                         rows={4}
                                         className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow resize-y"
+                                    />
+                                ) : f.type === 'multi-select' ? (
+                                    <MultiSelectDropdown
+                                        selected={data[f.key] || ''}
+                                        options={data.available_outcomes ? data.available_outcomes[f.category] : []}
+                                        onChange={(val) => handleChange(f.key, val)}
+                                        label={f.label}
                                     />
                                 ) : (
                                     <input

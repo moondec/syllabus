@@ -14,13 +14,21 @@ Stworzenie aplikacji internetowej, która zautomatyzuje proces generowania sylab
 * **Import Danych:** Użytkownik może wgrać plik `.DOCX` / `.PDF` z programem studiów.
 * **Automatyczna Ekstrakcja:** System analizuje dokument (tabele lub tekst surowy) i identyfikuje:
     * Listę przedmiotów, ECTS, semestr, jednostkę realizującą.
+    * **Obsługa wielu poziomów kształcenia:** Jeden plik (`.DOCX` / `.PDF`) może zawierać zarówno program studiów **I stopnia** jak i **II stopnia**. Każdy stopień posiada ten sam układ tabel (ale inną treść). Efekty i przedmioty nie mogą się mieszać między poziomami. Rozpoznawanie stopnia odbywa się na podstawie markera `Poziom kształcenia: studia ... stopnia` w dokumencie.
     * **Efekty Uczenia Się (Kluczowe):** Ekstrakcja symboli kierunkowych z podziałem na 3 kategorie:
-        * **WIEDZA (W):** np. `P6S_WG01`
-        * **UMIEJĘTNOŚCI (U):** np. `P6S_UW03`
-        * **KOMPETENCJE SPOŁECZNE (K):** np. `P6S_KK01`
+        * **WIEDZA (W):** np. `IS1A_WG01`
+        * **UMIEJĘTNOŚCI (U):** np. `IS1A_UW03`
+        * **KOMPETENCJE SPOŁECZNE (K):** np. `IS1A_KK01`
+    * **Struktura Tabeli Efektów (sekcja 3 programu):** Tabela z 3 kolumnami (`Symbol | Kierunkowe efekty uczenia się | Sposoby weryfikacji i oceny efektów uczenia się`) podzielona na sekcje nagłówkami (wiersze z pustą kolumną Symbol):
+        * "WIEDZA – absolwent zna i rozumie:" (Kategoria W)
+        * "UMIEJĘTNOŚCI – absolwent potrafi:" (Kategoria U)
+        * "KOMPETENCJE SPOŁECZNE – absolwent jest gotów do:" (Kategoria K)
+    * **Kluczowa reguła:** Nagłówki sekcji identyfikowane są **wyłącznie** gdy kolumna `Symbol` jest pusta — opisy efektów mogą zawierać te same słowa kluczowe (np. "potrafi") i nie mogą być traktowane jako nagłówki.
 * **Interaktywny Edytor:**
-    * Wyświetla wyekstrahowane symbole (W, U, K).
-    * Wyświetla sekcje "Kierunkowe efekty uczenia się" i "Sposoby weryfikacji" jako pomoc dla użytkownika (bez wklejania ich do docelowego dokumentu).
+    * Wyświetla wyekstrahowane symbole (W, U, K) w formie **menu rozwijanego**.
+    * Pozwala na **wielokrotny wybór** symboli z listy, z możliwością dodawania kolejnych pasujących.
+    * Wyświetla **opis danego efektu** przy wyborze (jako pomoc), ale do dokumentu końcowego trafia jedynie sam symbol.
+    * Wyświetla sekcje "Kierunkowe efekty uczenia się" i "Sposoby weryfikacji" jako pomoc dla użytkownika.
     * Pozwala na ręczne wypełnienie pól: `{{wiedza}}`, `{{umiejętności}}`, `{{kompetencje}}`, `{{cel_przedmiotu}}`, `{{metody_dydaktyczne}}`, `{{metody_weryfikacji}}`, `{{literatura}}`.
 * **Eksport do Pliku:** Generowanie dokumentu na podstawie `template.docx` przy użyciu `docxtpl`.
 

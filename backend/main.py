@@ -1,4 +1,5 @@
 import os
+import uuid
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -60,6 +61,9 @@ async def process_document(file: UploadFile = File(None), url: Optional[str] = F
     else:
         return JSONResponse(content={"error": "No file or URL provided"}, status_code=400)
 
+# In-memory store for generated files (file_id -> {path, filename})
+_generated_files = {}
+
 @app.post("/api/generate-syllabus")
 async def generate_syllabus(data: dict):
     # Pass all incoming form fields dynamically
@@ -69,9 +73,36 @@ async def generate_syllabus(data: dict):
     
     file_path = result.get("path")
     if file_path and os.path.exists(file_path):
-        return FileResponse(path=file_path, filename=os.path.basename(file_path), media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        # Sanitize filename - only safe chars for URL path
+        raw_name = data.get("nazwa_przedmiotu", "sylabus")
+        clean_name = "".join(c for c in raw_name if c.isalnum() or c in (' ', '_', '-')).strip()
+        clean_name = "_".join(clean_name.split())  # spaces -> underscores for URL safety
+        if not clean_name:
+            clean_name = "sylabus"
+        download_filename = f"{clean_name[:120]}.docx"
+        
+        # Store file info and return a download URL with filename in path
+        file_id = str(uuid.uuid4())
+        _generated_files[file_id] = {"path": os.path.abspath(file_path), "filename": download_filename}
+        
+        return JSONResponse(content={
+            "download_url": f"/api/download/{file_id}/{download_filename}",
+            "filename": download_filename
+        })
     else:
         return JSONResponse(content={"error": "File not found"}, status_code=404)
+
+@app.get("/api/download/{file_id}/{filename}")
+async def download_file(file_id: str, filename: str):
+    file_info = _generated_files.pop(file_id, None)
+    if not file_info or not os.path.exists(file_info["path"]):
+        return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
+    
+    return FileResponse(
+        path=file_info["path"],
+        filename=file_info["filename"],
+        media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    )
 
 @app.get("/api/get-all-subjects")
 async def get_all_subjects():

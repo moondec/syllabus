@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Z proxy w vite.config.js, wszystkie requesty /api/* sa przekierowywane na backend
+const API_BASE_URL = '/api';
 
 export const processDocument = async (file) => {
     const formData = new FormData();
@@ -20,34 +21,22 @@ export const processDocument = async (file) => {
 
 export const generateSyllabus = async (data, format = 'docx') => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/generate-syllabus`, data, {
-            responseType: 'blob', // Ważne dla obsługi plików binarnych (PDF/DOCX)
-        });
+        // Krok 1: Wyslij dane do backendu i otrzymaj URL do pobrania
+        const response = await axios.post(`${API_BASE_URL}/generate-syllabus`, data);
 
-        const fileExt = format === 'pdf' ? 'pdf' : 'docx';
-        const blob = new Blob([response.data], {
-            type: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        });
+        const downloadUrl = response.data?.download_url;
+        if (!downloadUrl) {
+            throw new Error(response.data?.error || 'Brak URL do pobrania pliku');
+        }
 
-        // Wymuszanie pobrania pliku w przegladarce klienta
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `wygenerowany_sylabus.${fileExt}`);
-        document.body.appendChild(link);
-        link.click();
-
-        // Cleanup
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        // Krok 2: Przekieruj przegladarke do endpointu GET (same-origin dzieki proxy)
+        window.location.href = downloadUrl;
 
         return true;
     } catch (error) {
-        if (error.response?.data instanceof Blob) {
-            // Odkodowanie tekstu z error.response gdy jest to blob
-            const text = await error.response.data.text();
-            try { return JSON.parse(text).error; } catch (e) { throw new Error('Nieoczekiwany błąd generowania dokumentu'); }
+        if (error.response?.data?.error) {
+            throw new Error(error.response.data.error);
         }
-        throw new Error('Błąd połączenia z serwerem podczas generacji pliku.');
+        throw new Error(error.message || 'Błąd połączenia z serwerem podczas generacji pliku.');
     }
 };

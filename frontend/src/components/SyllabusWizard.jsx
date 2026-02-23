@@ -102,24 +102,113 @@ export default function SyllabusWizard() {
                                     <p className="text-slate-500 mt-1">Z twojego pliku wyodrębniono {extractedSubjects.length} pozycji. Wybierz ten, dla którego chcesz przygotować gotowy dokument (kartę przedmiotu).</p>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {extractedSubjects.map((subj, index) => (
-                                        <div
-                                            onClick={() => handleSelectSubject(subj)}
-                                            key={index}
-                                            className="group p-5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-500/10 cursor-pointer transition-all flex flex-col justify-between"
-                                        >
-                                            <div>
-                                                <h3 className="font-semibold text-slate-800 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">{subj.nazwa_przedmiotu || 'Przedmiot bez nazwy'}</h3>
-                                                <p className="text-sm text-slate-500 mt-2 line-clamp-1">{subj.kierunek ? `Kierunek: ${subj.kierunek}` : 'Brak danych o kierunku'}</p>
+                                {(() => {
+                                    // Group and sort subjects
+                                    const grouped = extractedSubjects.reduce((acc, subj) => {
+                                        let level = subj.poziom || 'Nieokreślony poziom studiów';
+                                        // Capitalize first letter of level
+                                        level = level.charAt(0).toUpperCase() + level.slice(1);
+                                        if (!acc[level]) acc[level] = [];
+                                        acc[level].push(subj);
+                                        return acc;
+                                    }, {});
+
+                                    const parsePrefix = (name) => {
+                                        if (!name || typeof name !== 'string') return [999, 999];
+                                        const match = name.match(/^(\d+)\.(\d+)\.?/);
+                                        if (match) return [parseInt(match[1], 10), parseInt(match[2], 10)];
+                                        return [999, 999]; // fallback
+                                    };
+
+                                    Object.keys(grouped).forEach(level => {
+                                        grouped[level].sort((a, b) => {
+                                            const nameA = a.nazwa_przedmiotu || '';
+                                            const nameB = b.nazwa_przedmiotu || '';
+                                            const [a1, a2] = parsePrefix(nameA);
+                                            const [b1, b2] = parsePrefix(nameB);
+                                            if (a1 !== b1) return a1 - b1;
+                                            if (a2 !== b2) return a2 - b2;
+                                            return nameA.localeCompare(nameB);
+                                        });
+                                    });
+
+                                    return Object.entries(grouped).map(([level, subjects]) => {
+                                        const levelLower = level.toLowerCase();
+                                        let theme = {
+                                            bg: "bg-white",
+                                            border: "border-slate-200",
+                                            hoverBorder: "hover:border-indigo-400",
+                                            hoverShadow: "hover:shadow-indigo-500/10",
+                                            badgeBg: "bg-indigo-100",
+                                            badgeText: "text-indigo-700",
+                                            borderBottom: "border-indigo-100",
+                                            subjectHoverText: "group-hover:text-indigo-600"
+                                        };
+
+                                        if (levelLower.includes("pierwszego")) {
+                                            theme = {
+                                                bg: "bg-emerald-50/50",
+                                                border: "border-emerald-200/60",
+                                                hoverBorder: "hover:border-emerald-400",
+                                                hoverShadow: "hover:shadow-emerald-500/20",
+                                                badgeBg: "bg-emerald-100",
+                                                badgeText: "text-emerald-700",
+                                                borderBottom: "border-emerald-100",
+                                                subjectHoverText: "group-hover:text-emerald-600"
+                                            };
+                                        } else if (levelLower.includes("drugiego")) {
+                                            theme = {
+                                                bg: "bg-blue-50/50",
+                                                border: "border-blue-200/60",
+                                                hoverBorder: "hover:border-blue-400",
+                                                hoverShadow: "hover:shadow-blue-500/20",
+                                                badgeBg: "bg-blue-100",
+                                                badgeText: "text-blue-700",
+                                                borderBottom: "border-blue-100",
+                                                subjectHoverText: "group-hover:text-blue-600"
+                                            };
+                                        }
+
+                                        return (
+                                            <div key={level} className="mb-10 animate-in fade-in slide-in-from-bottom-2">
+                                                <div className={`flex items-center gap-3 mb-5 border-b pb-3 ${theme.borderBottom}`}>
+                                                    <div className={`${theme.badgeBg} ${theme.badgeText} px-3 py-1 rounded-md text-sm font-semibold inline-flex items-center`}>
+                                                        Studia
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-slate-800">{level}</h3>
+                                                    <span className="text-sm font-medium text-slate-400 ml-auto bg-slate-100 px-2 py-1 rounded-lg">
+                                                        {subjects.length} przedmiotów
+                                                    </span>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {subjects.map((subj, index) => (
+                                                        <div
+                                                            onClick={() => handleSelectSubject(subj)}
+                                                            key={`${level}-${index}`}
+                                                            className={`group p-5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer ${theme.bg} ${theme.border} ${theme.hoverBorder} hover:shadow-md ${theme.hoverShadow}`}
+                                                        >
+                                                            <div>
+                                                                <h3 className={`font-semibold text-slate-800 line-clamp-2 leading-tight transition-colors ${theme.subjectHoverText}`}>
+                                                                    {subj.nazwa_przedmiotu || 'Przedmiot bez nazwy'}
+                                                                </h3>
+                                                                <p className="text-sm text-slate-500 mt-2 line-clamp-1">
+                                                                    {subj.kierunek ? `Kierunek: ${subj.kierunek}` : 'Brak danych o kierunku'}
+                                                                </p>
+                                                            </div>
+                                                            <div className="mt-4 pt-4 border-t border-slate-200/50 flex items-center justify-between text-sm">
+                                                                <span className="font-medium text-slate-600">Semestr: {subj.semestr || '-'}</span>
+                                                                <span className="bg-white/60 border border-slate-200/50 text-slate-700 font-medium px-2 py-1 rounded-md">
+                                                                    ECTS: {subj.ects || '-'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
-                                                <span className="font-medium text-slate-600">Semestr: {subj.semestr || '-'}</span>
-                                                <span className="bg-slate-100 text-slate-700 font-medium px-2 py-1 rounded-md">ECTS: {subj.ects || '-'}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        );
+                                    });
+                                })()}
                             </>
                         ) : (
                             <div className="text-center py-12">
