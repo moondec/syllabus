@@ -1,6 +1,7 @@
-import React from 'react';
-import { Info } from 'lucide-react';
+import React, { useState } from 'react';
+import { Info, Sparkles, Loader2 } from 'lucide-react';
 import MultiSelectDropdown from './MultiSelectDropdown';
+import { aiGenerate } from '../services/apiService';
 
 const fields = [
     { key: 'nazwa_przedmiotu', label: 'Nazwa przedmiotu', desc: 'Pełna nazwa kursu/modułu', type: 'text' },
@@ -27,9 +28,51 @@ const fields = [
     { key: 'learning_outcomesK', label: 'Symbole: KOMPETENCJE', desc: 'Symbole efektów kierunkowych (K)', type: 'multi-select', category: 'K' }
 ];
 
-export default function SyllabusForm({ data, onChange }) {
+export default function SyllabusForm({ data, onChange, providerConfig, language = 'pl' }) {
+    const [aiLoading, setAiLoading] = useState({});
+
     const handleChange = (field, value) => {
         onChange(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleAIGenerate = async (fieldKey) => {
+        try {
+            setAiLoading(prev => ({ ...prev, [fieldKey]: true }));
+
+            // Build context info for the LLM based on what's available
+            const contextInfo = {
+                tresci: data.tresci || '',
+                kierunek: data.kierunek || '',
+                poziom: data.poziom || ''
+            };
+
+            // For outcomes fields, provide descriptions of selected symbols
+            if (['wiedza', 'umiejetnosci', 'kompetencje'].includes(fieldKey)) {
+                let categoryMap = { 'wiedza': 'W', 'umiejetnosci': 'U', 'kompetencje': 'K' };
+                let cat = categoryMap[fieldKey];
+                let selectedSymbolsStr = data[`learning_outcomes${cat}`] || '';
+                let selectedSymbols = selectedSymbolsStr.split(',').map(s => s.trim()).filter(Boolean);
+
+                let availableForCat = (data.available_outcomes && data.available_outcomes[cat]) || [];
+                let symbolsInfo = availableForCat.filter(s => selectedSymbols.includes(s.symbol));
+
+                contextInfo.symbols_info = symbolsInfo;
+            }
+
+            const generatedText = await aiGenerate(data.nazwa_przedmiotu, fieldKey, contextInfo, providerConfig, language);
+
+            // Set generated text to the field
+            handleChange(fieldKey, generatedText);
+
+        } catch (error) {
+            let msg = error.message || 'Wystąpił błąd podczas generowania tekstu.';
+            if (msg.includes('Brak klucza API')) {
+                msg = "Brak klucza API do modelu LLM. Kliknij przycisk 'Ustawienia AI' na górze strony, aby go wprowadzić.";
+            }
+            alert(msg);
+        } finally {
+            setAiLoading(prev => ({ ...prev, [fieldKey]: false }));
+        }
     };
 
     return (
@@ -79,15 +122,33 @@ export default function SyllabusForm({ data, onChange }) {
                                 </label>
                                 <p className="text-xs text-slate-500 italic">{f.desc}</p>
                             </div>
-                            <div className="md:col-span-8 lg:col-span-9">
+                            <div className="md:col-span-8 lg:col-span-9 relative">
                                 {f.type === 'textarea' ? (
-                                    <textarea
-                                        value={data[f.key] || ''}
-                                        onChange={(e) => handleChange(f.key, e.target.value)}
-                                        placeholder={f.placeholder || ''}
-                                        rows={4}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow resize-y"
-                                    />
+                                    <div className="relative">
+                                        <textarea
+                                            value={data[f.key] || ''}
+                                            onChange={(e) => handleChange(f.key, e.target.value)}
+                                            placeholder={f.placeholder || ''}
+                                            rows={5}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow resize-y disabled:opacity-70 disabled:bg-slate-100"
+                                            disabled={aiLoading[f.key]}
+                                        />
+                                        {['cel_przedmiotu', 'metody_dydaktyczne', 'wiedza', 'umiejetnosci', 'kompetencje'].includes(f.key) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAIGenerate(f.key)}
+                                                disabled={aiLoading[f.key]}
+                                                className="absolute right-3 bottom-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-2 rounded-lg shadow hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center"
+                                                title="Wygeneruj propozycję za pomocą AI"
+                                            >
+                                                {aiLoading[f.key] ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
                                 ) : f.type === 'multi-select' ? (
                                     <MultiSelectDropdown
                                         selected={data[f.key] || ''}

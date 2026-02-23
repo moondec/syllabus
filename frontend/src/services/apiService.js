@@ -40,3 +40,25 @@ export const generateSyllabus = async (data, format = 'docx') => {
         throw new Error(error.message || 'Błąd połączenia z serwerem podczas generacji pliku.');
     }
 };
+
+export const aiGenerate = async (subjectName, fieldType, contextInfo, providerConfig = null, language = 'pl') => {
+    try {
+        const payload = {
+            subject_name: subjectName,
+            field_type: fieldType,
+            context_info: contextInfo,
+            provider_config: providerConfig,
+            language: language
+        };
+
+        const response = await axios.post(`${API_BASE_URL}/ai-generate`, payload);
+
+        return response.data.generated_text;
+    } catch (error) {
+        if (error.response?.data?.error) {
+            throw new Error(error.response.data.error);
+        }
+        throw new Error(error.message || 'Błąd połączenia z serwerem podczas komunikacji z AI.');
+    }
+};
+

@@ -6,8 +6,10 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 *   **Import Danych:** Wczytywanie plików `.DOCX` / `.PDF` z programem studiów.
 *   **Automatyczna Ekstrakcja:** Rozpoznawanie symboli efektów kierunkowych (W, U, K) oraz danych przedmiotowych (ECTS, semestr, nazwa).
+*   **Wielojęzyczność (PL/EN):** Obsługa szablonów w języku polskim (`template_pl.docx`) i angielskim (`template_en.docx`). AI generuje treści w wybranym języku.
 *   **Interaktywny Edytor:** Formularz React synchronizowany w czasie rzeczywistym z podpowiedziami z dokumentu źródłowego.
-*   **Eksport do Word:** Generowanie gotowego dokumentu na podstawie `template.docx` przy użyciu `docxtpl`.
+*   **Konfiguracja AI:** Możliwość ustawienia własnego klucza API, endpointu i modelu (domyślnie `bielik_11b`) bezpośrednio w interfejsie. Klucz jest zapamiętywany lokalnie.
+*   **Eksport do Word:** Generowanie gotowego dokumentu na podstawie szablonów przy użyciu `docxtpl`.
 
 ## Stos Technologiczny
 
@@ -16,15 +18,31 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ## Uruchomienie Projektu
 
-### Backend
-1. Przejdź do folderu `backend`.
-2. Zainstaluj zależności: `pip install -r requirements.txt`.
-3. Uruchom serwer: `python -m uvicorn main:app --reload`.
+Aby uruchomić aplikację, należy otworzyć dwa osobne terminale (jeden dla backendu, drugi dla frontendu).
 
-### Frontend
-1. Przejdź do folderu `frontend`.
-2. Zainstaluj zależności: `npm install`.
-3. Uruchom aplikację: `npm run dev`.
+### 1. Backend (FastAPI)
+Otwórz terminal w głównym folderze projektu i wykonaj:
+```bash
+cd backend
+# Opcjonalnie: stwórz i aktywuj venv
+# python -m venv venv
+# source venv/bin/activate  # Mac/Linux
+# .\venv\Scripts\activate   # Windows
+
+pip install -r ../requirements.txt
+python -m uvicorn main:app --reload
+```
+Serwer API będzie dostępny pod adresem: `http://localhost:8000`
+
+### 2. Frontend (React + Vite)
+Otwórz drugi terminal w głównym folderze projektu i wykonaj:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
+
 
 ## TODO / Przyszłe Ulepszenia
 

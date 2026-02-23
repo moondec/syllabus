@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import FileUploader from './FileUploader';
 import SyllabusForm from './SyllabusForm';
 import { processDocument, generateSyllabus } from '../services/apiService';
-import { Loader2, Download, AlertCircle, ChevronRight, List, ArrowLeft } from 'lucide-react';
+import { Loader2, Download, AlertCircle, ChevronRight, List, ArrowLeft, Settings, X, Languages } from 'lucide-react';
 
 export default function SyllabusWizard() {
     const [step, setStep] = useState(1);
@@ -10,6 +10,24 @@ export default function SyllabusWizard() {
     const [error, setError] = useState(null);
     const [extractedSubjects, setExtractedSubjects] = useState([]); // Array z API po ekstrakcji wielu subjectow
     const [syllabusData, setSyllabusData] = useState(null); // Obecnie edytowany pojedynczy sylabus
+    const [language, setLanguage] = useState('pl'); // 'pl' or 'en'
+
+    // AI Provider Settings State
+    const [showSettings, setShowSettings] = useState(false);
+    const [providerConfig, setProviderConfig] = useState(() => {
+        const saved = localStorage.getItem('llm_provider_config');
+        return saved ? JSON.parse(saved) : {
+            endpointUrl: 'https://llm.hpc.pcss.pl/v1',
+            model: 'bielik_11b',
+            apiKey: ''
+        };
+    });
+
+    const handleSaveSettings = (newConfig) => {
+        setProviderConfig(newConfig);
+        localStorage.setItem('llm_provider_config', JSON.stringify(newConfig));
+        setShowSettings(false);
+    };
 
     const handleFileUpload = async (file) => {
         setLoading(true);
@@ -45,7 +63,7 @@ export default function SyllabusWizard() {
         setLoading(true);
         setError(null);
         try {
-            await generateSyllabus(syllabusData, 'docx');
+            await generateSyllabus({ ...syllabusData, language }, 'docx');
             setStep(4);
         } catch (err) {
             setError(err.message || 'Wystąpił błąd podczas generowania dokumentu');
@@ -57,15 +75,91 @@ export default function SyllabusWizard() {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             {/* PROGRESS BAR */}
-            <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm font-medium text-slate-500">
-                <span className={step >= 1 ? "text-indigo-600" : ""}>1. Wgraj program</span>
-                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
-                <span className={step >= 2 ? "text-indigo-600" : ""}>2. Wybierz przedmiot</span>
-                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
-                <span className={step >= 3 ? "text-indigo-600" : ""}>3. Weryfikuj tabelę</span>
-                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
-                <span className={step >= 4 ? "text-indigo-600" : ""}>4. Zapisz Sylabus</span>
+            <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm font-medium text-slate-500 items-center justify-between">
+                <div className="flex flex-wrap gap-2 md:gap-4 items-center">
+                    <span className={step >= 1 ? "text-indigo-600" : ""}>1. Wgraj program</span>
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
+                    <span className={step >= 2 ? "text-indigo-600" : ""}>2. Wybierz przedmiot</span>
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
+                    <span className={step >= 3 ? "text-indigo-600" : ""}>3. Weryfikuj tabelę</span>
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
+                    <span className={step >= 4 ? "text-indigo-600" : ""}>4. Zapisz Sylabus</span>
+                </div>
+
+                <button
+                    onClick={() => setShowSettings(true)}
+                    className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
+                    title="Ustawienia modelu AI"
+                >
+                    <Settings className="w-4 h-4" />
+                    <span className="hidden sm:inline">Ustawienia AI</span>
+                </button>
             </div>
+
+            {/* AI SETTINGS MODAL */}
+            {showSettings && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-200 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                <Settings className="w-5 h-5 text-indigo-600" />
+                                Konfiguracja modelu AI
+                            </h3>
+                            <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600 p-1">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Adres API (Endpoint URL)</label>
+                                <input
+                                    type="text"
+                                    value={providerConfig.endpointUrl}
+                                    onChange={e => setProviderConfig({ ...providerConfig, endpointUrl: e.target.value })}
+                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                />
+                                <p className="text-[10px] text-slate-500 mt-1">Domyślnie: https://llm.hpc.pcss.pl/v1</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Nazwa modelu</label>
+                                <input
+                                    type="text"
+                                    value={providerConfig.model}
+                                    onChange={e => setProviderConfig({ ...providerConfig, model: e.target.value })}
+                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                />
+                                <p className="text-[10px] text-slate-500 mt-1">Domyślnie: bielik_11b</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Klucz API (Opcjonalnie)</label>
+                                <input
+                                    type="password"
+                                    value={providerConfig.apiKey}
+                                    onChange={e => setProviderConfig({ ...providerConfig, apiKey: e.target.value })}
+                                    placeholder="Wpisz klucz (nadpisze klucz z systemu)"
+                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                />
+                                <p className="text-[10px] text-slate-500 mt-1">Zostaw puste, jeśli klucz znajduje się w `keyring` systemu (pcss_llm_app).</p>
+                            </div>
+
+                            <div className="pt-4 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowSettings(false)}
+                                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                >
+                                    Anuluj
+                                </button>
+                                <button
+                                    onClick={() => handleSaveSettings(providerConfig)}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm shadow-indigo-600/20"
+                                >
+                                    Zapisz ustawienia
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="p-4 md:p-8">
                 {error && (
@@ -246,17 +340,40 @@ export default function SyllabusWizard() {
                                     <p className="text-slate-500">Sprawdź pobrane informacje i uzupełnij brakujące pola w formularzu wybranego przedmiotu.</p>
                                 </div>
                             </div>
-                            <button
-                                onClick={handleGenerateDocument}
-                                disabled={loading}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
-                            >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                                Eksportuj DOCX
-                            </button>
+                            <div className="flex items-center gap-3">
+                                {/* Language Toggle */}
+                                <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
+                                    <button
+                                        onClick={() => setLanguage('pl')}
+                                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${language === 'pl'
+                                                ? 'bg-white text-indigo-700 shadow-sm border border-indigo-200'
+                                                : 'text-slate-500 hover:text-slate-700'
+                                            }`}
+                                    >
+                                        🇵🇱 PL
+                                    </button>
+                                    <button
+                                        onClick={() => setLanguage('en')}
+                                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${language === 'en'
+                                                ? 'bg-white text-indigo-700 shadow-sm border border-indigo-200'
+                                                : 'text-slate-500 hover:text-slate-700'
+                                            }`}
+                                    >
+                                        🇬🇧 EN
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={handleGenerateDocument}
+                                    disabled={loading}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                                >
+                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                                    Eksportuj DOCX
+                                </button>
+                            </div>
                         </div>
 
-                        <SyllabusForm data={syllabusData} onChange={setSyllabusData} />
+                        <SyllabusForm data={syllabusData} onChange={setSyllabusData} providerConfig={providerConfig} language={language} />
                     </div>
                 )}
 

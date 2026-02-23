@@ -10,6 +10,16 @@ import data_extractor_v2
 import plan_extractor
 import document_generator
 import data_merger
+import bielik_service
+from pydantic import BaseModel
+from typing import Optional, Dict
+
+class AIGenerateRequest(BaseModel):
+    subject_name: str
+    field_type: str
+    context_info: Dict
+    provider_config: Optional[Dict] = None
+    language: Optional[str] = "pl"
 
 app = FastAPI()
 
@@ -64,10 +74,30 @@ async def process_document(file: UploadFile = File(None), url: Optional[str] = F
 # In-memory store for generated files (file_id -> {path, filename})
 _generated_files = {}
 
+@app.post("/api/ai-generate")
+async def ai_generate(request: AIGenerateRequest):
+    result = bielik_service.generate_content(
+        subject_name=request.subject_name,
+        field_type=request.field_type,
+        context=request.context_info,
+        provider_config=request.provider_config,
+        language=request.language or "pl"
+    )
+    
+    if "error" in result:
+        return JSONResponse(content=result, status_code=500)
+        
+    return JSONResponse(content={"generated_text": result["generated_text"]}, status_code=200)
+
+
 @app.post("/api/generate-syllabus")
 async def generate_syllabus(data: dict):
-    # Pass all incoming form fields dynamically
-    result = document_generator.generate_docx(data)
+    # Select template based on language
+    language = data.pop("language", "pl")
+    template_name = "template_en.docx" if language == "en" else "template_pl.docx"
+    template_path = os.path.join(os.path.dirname(__file__), "..", template_name)
+    
+    result = document_generator.generate_docx(data, template_path=template_path)
     if "error" in result:
         return JSONResponse(content=result, status_code=500)
     
