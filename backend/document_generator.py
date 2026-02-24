@@ -22,7 +22,7 @@ def generate_docx(subject_data, template_path=None):
         context["profile"] = subject_data.get("profil", "")
         context["semester"] = subject_data.get("semestr", "")
         context["content"] = subject_data.get("tresci", "")
-        context["zakres"] = subject_data.get("efekty", "") # Usually holds the full range of outcomes
+        context["zakres"] = subject_data.get("zakres", "")
         
         # Ensure learning outcomes are mapped if not already
         context["learning_outcomesW"] = subject_data.get("learning_outcomesW", "")

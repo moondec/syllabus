@@ -4,28 +4,37 @@ import MultiSelectDropdown from './MultiSelectDropdown';
 import { aiGenerate } from '../services/apiService';
 
 const fields = [
-    { key: 'nazwa_przedmiotu', label: 'Nazwa przedmiotu', desc: 'Pełna nazwa kursu/modułu', type: 'text' },
-    { key: 'nazwa_angielska', label: 'Nazwa w j. angielskim', desc: 'Tłumaczenie nazwy przedmiotu', type: 'text', ai: true },
+    { key: 'nazwa_przedmiotu', label: 'Nazwa przedmiotu', desc: 'Pełna nazwa kursu/modułu (PL)', type: 'text' },
+    { key: 'ects', label: 'Punkty ECTS', desc: 'Liczba punktów ECTS', type: 'text' },
+    { key: 'nazwa_angielska', label: 'Nazwa w j. angielskim', desc: 'Tłumaczenie nazwy przedmiotu (EN)', type: 'text', ai: true },
+    { key: 'jednostka', label: 'Jednostka realizująca', desc: 'Katedra lub wydział', type: 'text' },
+    { key: 'kierownik', label: 'Kierownik przedmiotu', desc: 'Tytuł i nazwisko prowadzącego', type: 'text' },
     { key: 'kierunek', label: 'Kierunek studiów', desc: 'Sprecyzowany kierunek studiów', type: 'text' },
     { key: 'poziom', label: 'Poziom kształcenia', desc: 'np. Studia I lub II stopnia', type: 'text' },
     { key: 'profil', label: 'Profil kształcenia', desc: 'np. ogólnoakademicki / praktyczny', type: 'text' },
+    { key: 'semestr', label: 'Semestr', desc: 'Numer semestru realizacji kursu', type: 'text' },
+    { key: 'zakres', label: 'Zakres / Specjalizacja', desc: 'W zakresie / Moduł kształcenia / Specjalizacja', type: 'text' },
     { key: 'forma', label: 'Forma studiów', desc: 'np. stacjonarne / niestacjonarne', type: 'text' },
-    { key: 'semestr', label: 'Semestr', desc: 'Domyślny semestr realizacji kursu', type: 'text' },
-    { key: 'ects', label: 'Punkty ECTS', desc: 'Ilość punktów ECTS', type: 'text' },
-    { key: 'jednostka', label: 'Jednostka realizująca', desc: 'Katedra lub wydział', type: 'text' },
-    { key: 'kierownik', label: 'Kierownik przedmiotu', desc: 'Tytuł i nazwisko prowadzącego', type: 'text' },
-    { key: 'cel_przedmiotu', label: 'Cel przedmiotu', desc: 'Cele kształcenia', type: 'textarea', ai: true },
-    { key: 'zalozenia', label: 'Założenia i wymagania', desc: 'Wymagania wstępne', type: 'textarea' },
-    { key: 'metody_dydaktyczne', label: 'Metody dydaktyczne', desc: 'Sposób prowadzenia zajęć', type: 'textarea', ai: true },
-    { key: 'metody_weryfikacji', label: 'Metody weryfikacji', desc: 'Jak sprawdzana jest wiedza', type: 'textarea', ai: true },
-    { key: 'literatura', label: 'Literatura', desc: 'Spis literatury podstawowej i uzupełniającej', type: 'textarea' },
-    { key: 'tresci', label: 'Treści programowe', desc: 'Krótki opis poruszanych zagadnień', type: 'textarea', ai: true },
-    { key: 'wiedza', label: 'Wiedza (Opisowo)', desc: 'Opisowe efekty w kategorii WIEDZA', type: 'textarea', ai: true },
-    { key: 'umiejetnosci', label: 'Umiejętności (Opisowo)', desc: 'Opisowe efekty w kategorii UMIEJĘTNOŚCI', type: 'textarea', ai: true },
-    { key: 'kompetencje', label: 'Kompetencje społeczne (Opisowo)', desc: 'Opisowe efekty w kategorii KOMPETENCJE', type: 'textarea', ai: true },
-    { key: 'learning_outcomesW', label: 'Symbole: WIEDZA', desc: 'Symbole efektów kierunkowych (W)', type: 'multi-select', category: 'W' },
-    { key: 'learning_outcomesU', label: 'Symbole: UMIEJĘTNOŚCI', desc: 'Symbole efektów kierunkowych (U)', type: 'multi-select', category: 'U' },
-    { key: 'learning_outcomesK', label: 'Symbole: KOMPETENCJE', desc: 'Symbole efektów kierunkowych (K)', type: 'multi-select', category: 'K' }
+
+    // Description fields (AI-powered)
+    { key: 'cel_przedmiotu', label: 'Cel przedmiotu', desc: 'Główne cele kształcenia', type: 'textarea', ai: true },
+    { key: 'metody_dydaktyczne', label: 'Metody dydaktyczne', desc: 'Sposoby prowadzenia zajęć', type: 'textarea', ai: true },
+    { key: 'wiedza', label: 'Wiedza (Opisowo)', desc: 'Opis zdobytych kwalifikacji w zakresie wiedzy', type: 'textarea', ai: true },
+    { key: 'umiejetnosci', label: 'Umiejętności (Opisowo)', desc: 'Opis zdobytych kwalifikacji w zakresie umiejętności', type: 'textarea', ai: true },
+    { key: 'kompetencje', label: 'Kompetencje społeczne (Opisowo)', desc: 'Opis zdobytych kwalifikacji w zakresie kompetencji', type: 'textarea', ai: true },
+
+    // Learning outcomes (Symbols)
+    { key: 'learning_outcomesW', label: 'Symbole: WIEDZA', desc: 'Kierunkowe efekty uczenia się (W)', type: 'multi-select', category: 'W' },
+    { key: 'learning_outcomesU', label: 'Symbole: UMIEJĘTNOŚCI', desc: 'Kierunkowe efekty uczenia się (U)', type: 'multi-select', category: 'U' },
+    { key: 'learning_outcomesK', label: 'Symbole: KOMPETENCJE', desc: 'Kierunkowe efekty uczenia się (K)', type: 'multi-select', category: 'K' },
+
+    { key: 'metody_weryfikacji', label: 'Sposoby weryfikacji', desc: 'Metody weryfikacji efektów uczenia się', type: 'textarea', ai: true },
+    { key: 'kursSym', label: 'Symbole przedmiotowe', desc: 'Dopasowanie symboli do treści programowych', type: 'textarea', ai: true },
+    { key: 'tresci', label: 'Treści programowe', desc: 'Opis wykładów, ćwiczeń, laboratoriów itd.', type: 'textarea', ai: true },
+
+    { key: 'formy_zaliczenia', label: 'Formy zaliczenia', desc: 'Opis egzaminów, zaliczeń itd.', type: 'textarea' },
+    { key: 'procOcena', label: 'Udział w ocenie końcowej (%)', desc: 'Procentowy udział poszczególnych form zaliczenia', type: 'text' },
+    { key: 'literatura', label: 'Literatura', desc: 'Literatura podstawowa i uzupełniająca', type: 'textarea' }
 ];
 
 export default function SyllabusForm({ data, onChange, providerConfig, language = 'pl' }) {
@@ -124,11 +133,11 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                 {[
                                     { key: 'numWS', label: 'Wykłady' },
                                     { key: 'numCS', label: 'Ćwiczenia' },
-                                    { key: 'numLS', label: 'Laboratoria' },
                                     { key: 'numPS', label: 'Zajęcia terenowe' },
-                                    { key: 'numInS', label: 'Inne zajęcia' },
+                                    { key: 'numLS', label: 'Laboratoria' },
                                     { key: 'numKS', label: 'Konsultacje' },
                                     { key: 'numPwS', label: 'Praca własna' },
+                                    { key: 'numInS', label: 'Inne zajęcia' },
                                     { key: 'numTS', label: 'ŁĄCZNIE', bold: true },
                                 ].map(h => (
                                     <div key={h.key} className="flex items-center gap-3">
@@ -150,11 +159,11 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                 {[
                                     { key: 'numWNS', label: 'Wykłady' },
                                     { key: 'numCNS', label: 'Ćwiczenia' },
-                                    { key: 'numLNS', label: 'Laboratoria' },
                                     { key: 'numPNS', label: 'Zajęcia terenowe' },
-                                    { key: 'numInNS', label: 'Inne zajęcia' },
+                                    { key: 'numLNS', label: 'Laboratoria' },
                                     { key: 'numKNS', label: 'Konsultacje' },
                                     { key: 'numPwNS', label: 'Praca własna' },
+                                    { key: 'numInNS', label: 'Inne zajęcia' },
                                     { key: 'numTNS', label: 'ŁĄCZNIE', bold: true },
                                 ].map(h => (
                                     <div key={h.key} className="flex items-center gap-3">

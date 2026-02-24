@@ -16,6 +16,36 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 *   **Backend:** Python (FastAPI), `python-docx`, `pdfplumber`, `docxtpl`.
 *   **Frontend:** React (Vite), TailwindCSS, Axios.
 
+## Instrukcja Obsługi
+
+Aplikacja prowadzi użytkownika przez proces tworzenia sylabusa w 4 prostych krokach:
+
+### Krok 1: Import Dokumentów Źródłowych
+1. **Wgraj Program Studiów:** Wybierz plik `.docx` lub `.pdf` zawierający ogólny opis kierunku i tabelę efektów uczenia się.
+2. **Wgraj Plany Studiów (Plan godzinowy):** Możesz wgrać do 4 różnych plików PDF z planami zajęć. System automatycznie dopasuje godziny do przedmiotu na podstawie jego nazwy i stopnia studiów:
+   * **Studia I stopnia:** Plany dla trybu stacjonarnego i niestacjonarnego.
+   * **Studia II stopnia:** Plany dla trybu stacjonarnego i niestacjonarnego.
+   * *Wskazówka: System sam rozpozna stopień przedmiotu przy jego wyborze.*
+
+### Krok 2: Wybór Przedmiotu
+Z listy wyekstrahowanej z programu studiów wybierz przedmiot, dla którego chcesz przygotować sylabus. Po kliknięciu "Wybierz", system:
+* Pobierze nazwę, ECTS i semestr z programu.
+* Automatycznie dołączy liczby godzin z wgranych wcześniej planów studiów (S i NS).
+
+### Krok 3: Edycja i Wspomaganie AI
+Wypełnij pola formularza. Możesz to zrobić na trzy sposoby:
+* **Ręcznie:** Wpisz tekst bezpośrednio w pole.
+* **Z pomocą AI:** Kliknij ikonę błyskawicy/gwiazdek przy polach takich jak *Cel*, *Metody* czy *Treści*. AI zaproponuje profesjonalnie sformułowaną treść.
+* **Hybrydowo (Polecane):** Wpisz kilka słów kluczowych lub punktów, które chcesz zawrzeć (np. "nauka Pythona, API, bazy danych"), a następnie kliknij przycisk AI. Model **rozwinie Twoje wskazówki** w pełny, poprawny językowo tekst sylabusa.
+* **Symbole efektów:** Wybierz symbole (W, U, K) z rozwijanych list. Podpowiedzi z programu studiów zobaczysz w żółtej sekcji na górze edytora.
+
+### Krok 4: Eksport
+1. Wybierz język dokumentu (PL/EN) na górze strony.
+2. Kliknij **"Eksportuj DOCX"**.
+3. Gotowy, sformatowany plik zostanie pobrany na Twój dysk.
+
+---
+
 ## Uruchomienie Projektu
 
 Aby uruchomić aplikację, należy otworzyć dwa osobne terminale (jeden dla backendu, drugi dla frontendu).

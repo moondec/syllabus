@@ -58,27 +58,31 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
         base_system = (
             "You are an experienced academic instructor and expert in writing course syllabi. "
             "Your task is to professionally formulate content for selected sections of a syllabus. "
-            "STRICT REQUIREMENT: Return ONLY plain text. Do NOT use any Markdown formatting "
+            "STRICT REQUIREMENT: Return ONLY continuous plain text. Do NOT use any Markdown formatting "
             "(no bold **, no italics *, no headers #, no markdown-style lists -). "
-            "Write concisely, in an academic style, in English. Return only the generated text, "
-            "without any additional comments or greetings."
+            "Do NOT use newlines, line breaks, or structural meta-text (like 'new line' or 'paragraph'). "
+            "Separate items with commas or semicolons. "
+            "Write concisely, in an academic style, in English. Return ONLY the generated text, "
+            "without any additional comments, labels, or greetings."
         )
     else:
         base_system = (
             "Jesteś doświadczonym nauczycielem akademickim i ekspertem od pisania sylabusów (kart przedmiotów). "
             "Twoim zadaniem jest pomóc w profesjonalnym sformułowaniu treści do wybranych sekcji sylabusa. "
-            "ŚCISŁY WYMÓG: Zwracaj WYŁĄCZNIE czysty tekst. NIE używaj żadnego formatowania Markdown "
+            "ŚCISŁY WYMÓG: Zwracaj WYŁĄCZNIE czysty, ciągły tekst. NIE używaj żadnego formatowania Markdown "
             "(żadnych pogrubień **, kursywy *, nagłówków #, czy list w stylu markdown -). "
+            "NIE używaj znaków nowej linii, wypunktowań ani słów typu 'nowa linia', 'akapit'. "
+            "Poszczególne elementy oddzielaj przecinkami lub średnikami. "
             "Pisz zwięźle, akademickim stylem, w języku polskim. Zwracaj sam wygenerowany tekst, bez owijania "
-            "go w dodatkowe komentarze czy przywitania."
+            "go w dodatkowe komentarze, etykiety czy przywitania."
         )
     
     context_prefix = ""
     if field_value:
         if language == "en":
-            context_prefix = f"The user has already provided some initial ideas or instructions for this field: '{field_value}'. Please incorporate and expand upon them.\n\n"
+            context_prefix = f"The user has already provided some initial ideas or instructions for this field: '{field_value}'. Please incorporate, develop, and expand upon them smoothly in your text.\n\n"
         else:
-            context_prefix = f"Użytkownik podał już wstępne pomysły lub polecenia dla tego pola: '{field_value}'. Uwzględnij je i rozwiń.\n\n"
+            context_prefix = f"Użytkownik podał już wstępne pomysły, fragmenty tekstu lub polecenia dla tego pola: '{field_value}'. Płynnie rozwiń i wpleć te sugestie w generowany tekst.\n\n"
 
     if field_type == "cel_przedmiotu":
         sys_prompt = base_system
@@ -86,13 +90,13 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
             user_prompt = (
                 f"{context_prefix}Write the 'Course Objectives' for the course '{subject_name}' (field of study: {kierunek}, level: {poziom}).\n"
                 f"Course content (topics): {tresci}\n\n"
-                "Formulate 2-4 concise objectives as plain text bullet points (e.g. 'O1. To familiarize students with...')."
+                "Formulate 2-4 concise objectives mathematically or descriptively as a single continuous sentence separated by commas."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Napisz 'Cel przedmiotu' dla kursu '{subject_name}' (kierunek: {kierunek}, poziom: {poziom}).\n"
                 f"Treści programowe (zagadnienia): {tresci}\n\n"
-                "Sformułuj 2-4 zwięzłe cele w punktach lub równoważnikach zdań (np. 'C1. Zapoznanie studentów z...')."
+                "Sformułuj 2-4 zwięzłe cele w jednym ciągu tekstu, oddzielając je przecinkami lub średnikami."
             )
     
     elif field_type == "metody_dydaktyczne":
@@ -101,13 +105,13 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
             user_prompt = (
                 f"{context_prefix}Propose 'Teaching Methods' for the course '{subject_name}'.\n"
                 f"Course content: {tresci}\n\n"
-                "List traditional and activating methods as plain text bullet points (e.g. 'informational lecture', 'laboratory exercises')."
+                "List traditional and activating methods as continuous text separated by commas."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Zaproponuj 'Metody dydaktyczne' (sposób prowadzenia zajęć) dla przedmiotu '{subject_name}'.\n"
                 f"Treści programowe: {tresci}\n\n"
-                "Wymień klasyczne i aktywizujące metody w formie krótkich punktów (np. 'wykład informacyjny', 'ćwiczenia laboratoryjne')."
+                "Wymień klasyczne i aktywizujące metody w formie tekstu ciągłego, po przecinku (np. wykład informacyjny, ćwiczenia laboratoryjne)."
             )
 
     elif field_type == "metody_weryfikacji":
@@ -117,14 +121,14 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
                 f"{context_prefix}Propose 'Verification Methods' (how student performance is assessed) for the course '{subject_name}'.\n"
                 f"Objectives: {cel}\n"
                 f"Content: {tresci}\n\n"
-                "List appropriate methods (e.g., written exam, project, oral presentation) as plain text bullet points."
+                "List appropriate methods (e.g., written exam, project) as continuous text separated by commas."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Zaproponuj 'Metody weryfikacji' (sposób sprawdzania efektów uczenia się) dla przedmiotu '{subject_name}'.\n"
                 f"Cele przedmiotu: {cel}\n"
                 f"Treści programowe: {tresci}\n\n"
-                "Wymień odpowiednie metody (np. egzamin pisemny, projekt, prezentacja) w formie krótkich punktów."
+                "Wymień odpowiednie metody w formie tekstu ciągłego, po przecinku (np. egzamin pisemny, projekt techniczny)."
             )
 
     elif field_type == "tresci":
@@ -132,12 +136,12 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
         if language == "en":
             user_prompt = (
                 f"{context_prefix}Write 'Course Content' (list of topics) for the course '{subject_name}' (field of study: {kierunek}).\n\n"
-                "List the main topics or modules of the course as plain text bullet points."
+                "List the main topics or modules of the course as continuous text separated by semicolons."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Napisz 'Treści programowe' (listę zagadnień) dla przedmiotu '{subject_name}' (kierunek: {kierunek}).\n\n"
-                "Wymień główne bloki tematyczne lub punkty programu zajęć w formie krótkich punktów."
+                "Wymień główne bloki tematyczne lub abstrakty zajęć w jednym bloku tekstu, oddzielając je średnikami."
             )
 
     elif field_type == "nazwa_angielska":
@@ -180,7 +184,7 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
                 f"Course content: {tresci}\n"
                 "The following directional learning outcomes were selected as a basis:\n"
                 f"{symbols_text}\n\n"
-                "Rephrase into specific course outcomes. Use plain text only. Use operational verbs (defines, explains, designs, etc.)."
+                "Rephrase into specific course outcomes. Use plain continuous text separated by semicolons. Use operational verbs."
             )
         else:
             user_prompt = (
@@ -188,7 +192,7 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
                 f"Treści programowe: {tresci}\n"
                 "Dla tego przedmiotu wybrano następujące kierunkowe efekty uczenia się jako bazę:\n"
                 f"{symbols_text}\n\n"
-                "Zredaguj tekst specyficzny dla tego przedmiotu. Używaj wyłącznie czystego tekstu. Używaj czasowników operacyjnych (definiuje, objaśnia, projektuje itp.)."
+                "Zredaguj tekst specyficzny dla przedmiotu w jednym bloku tekstu, oddzielając myśli średnikami. Używaj czasowników operacyjnych (np. definiuje, objaśnia)."
             )
         
     else:
@@ -250,6 +254,13 @@ def generate_content(
             if lines[0].startswith("```"): lines = lines[1:]
             if lines[-1].startswith("```"): lines = lines[:-1]
             generated_text = "\n".join(lines).strip()
+            
+        # Rigorous post-processing: remove newlines that could break Word rendering
+        generated_text = generated_text.replace('\n', ' ').replace('\r', '')
+        # Remove literal "nowa linia", "new line" etc.
+        generated_text = generated_text.replace('nowa linia', '').replace('new line', '')
+        # Condense multiple spaces
+        generated_text = " ".join(generated_text.split())
             
         return {"generated_text": generated_text}
         
