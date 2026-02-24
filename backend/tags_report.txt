@@ -1,0 +1,23 @@
+--- TAGS IN template_pl.docx ---
+['cel_przedmiotu', 'content', 'ects', 'field_of_study', 'formy_zaliczenia', 'kierownik', 'kompetencje', 'kursSym', 'learning_outcomesK', 'learning_outcomesU', 'learning_outcomesW', 'level', 'literatura', 'metody_dydaktyczne', 'metody_weryfikacji', 'name', 'name_en', 'numCNS', 'numCS', 'numInNS', 'numInS', 'numKNS', 'numKS', 'numLNS', 'numLS', 'numPNS', 'numPS', 'numPwNS', 'numPwS', 'numTNS', 'numTS', 'numWNS', 'numWS', 'procOcena', 'profile', 'semester', 'umiejetnosci', 'unit', 'wiedza', 'zakres']
+Total: 40
+
+--- TAGS IN template_en.docx ---
+['cel_przedmiotu', 'content', 'ects', 'field_of_study', 'formy_zaliczenia', 'kierownik', 'kompetencje', 'kursSym', 'learning_outcomesK', 'learning_outcomesU', 'learning_outcomesW', 'level', 'literatura', 'metody_dydaktyczne', 'metody_weryfikacji', 'name', 'name_en', 'numCNS', 'numCS', 'numInNS', 'numInS', 'numKNS', 'numKS', 'numLNS', 'numLS', 'numPNS', 'numPS', 'numPwNS', 'numPwS', 'numTNS', 'numTS', 'numWNS', 'numWS', 'procOcena', 'profile', 'semester', 'umiejetnosci', 'unit', 'wiedza', 'zakres']
+Total: 40
+
+--- TAGS DOCUMENTED IN GEMINI.md ---
+['cel_przedmiotu', 'content', 'ects', 'field_of_study', 'formy_zaliczenia', 'kierownik', 'kompetencje', 'kursSym', 'learning_outcomesK', 'learning_outcomesU', 'learning_outcomesW', 'level', 'literatura', 'metody_dydaktyczne', 'metody_weryfikacji', 'name', 'name_en', 'numCS', 'numCSN', 'numInS', 'numInSN', 'numKS', 'numKSN', 'numLS', 'numLSN', 'numPS', 'numPSN', 'numPwS', 'numPwSN', 'numTS', 'numTSN', 'numWS', 'numWSN', 'procOcena', 'profile', 'semester', 'umiejętności', 'unit', 'wiedza', 'zakres', '{{ tag']
+Total: 41
+
+--- DISCREPANCIES BETWEEN TEMPLATES ---
+Only in PL: set()
+Only in EN: set()
+
+--- DISCREPANCIES (template_pl.docx vs GEMINI.md) ---
+In Template but NOT in GEMINI.md: {'umiejetnosci', 'numTNS', 'numKNS', 'numPNS', 'numPwNS', 'numLNS', 'numWNS', 'numCNS', 'numInNS'}
+In GEMINI.md but NOT in Template: {'numCSN', '{{ tag', 'numLSN', 'numInSN', 'numPSN', 'numWSN', 'numTSN', 'umiejętności', 'numKSN', 'numPwSN'}
+
+--- DISCREPANCIES (template_en.docx vs GEMINI.md) ---
+In Template but NOT in GEMINI.md: {'umiejetnosci', 'numTNS', 'numKNS', 'numPNS', 'numPwNS', 'numLNS', 'numWNS', 'numCNS', 'numInNS'}
+In GEMINI.md but NOT in Template: {'numCSN', '{{ tag', 'numLSN', 'numInSN', 'numPSN', 'numWSN', 'numTSN', 'umiejętności', 'numKSN', 'numPwSN'}

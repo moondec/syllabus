@@ -63,12 +63,13 @@ export const aiGenerate = async (subjectName, fieldType, contextInfo, providerCo
     }
 };
 
-export const processPlan = async (file) => {
+export const processPlan = async (file, tryb = null) => {
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-        const response = await axios.post(`${API_BASE_URL}/process-plan`, formData, {
+        const url = tryb ? `${API_BASE_URL}/process-plan?tryb=${tryb}` : `${API_BASE_URL}/process-plan`;
+        const response = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

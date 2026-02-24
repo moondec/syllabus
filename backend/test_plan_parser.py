@@ -17,7 +17,7 @@ print(f"Metadata: {result['metadata']}")
 print(f"Subjects found: {len(result['subjects'])}")
 
 for s in result['subjects'][:5]:
-    print(f"  {s['nazwa_przedmiotu'][:40]:<40} ECTS={s.get('ects','?'):>2}  numWS={s.get('numWS',''):>3}  numCS={s.get('numCS',''):>3}  numTS={s.get('numTS',''):>4}  sem={s.get('semestr','?')}")
+    print(f"  {s['nazwa_przedmiotu'][:40]:<40} ECTS={s.get('ects','?'):>2}  W={s.get('numWS',''):>2}  C={s.get('numCS',''):>2}  K={s.get('numKS',''):>2}  Pw={s.get('numPwS',''):>2}  T={s.get('numTS',''):>3}  sem={s.get('semestr','?')}")
 
 print("\n---\n")
 

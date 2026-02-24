@@ -145,7 +145,11 @@ def extract_plan_subjects(pages_data, metadata=None):
         all_text = " ".join([p.get("text", "") for p in pages_data[:2]])
         metadata = extract_plan_metadata(all_text)
 
+    # Use override_tryb if provided, otherwise use metadata
     tryb = metadata.get("tryb", "S")
+    if metadata.get("override_tryb"):
+        tryb = metadata["override_tryb"]
+
     subjects = []
     current_semester = ""
     past_header = False  # Track if we've seen the header rows
@@ -239,6 +243,7 @@ def extract_plan_subjects(pages_data, metadata=None):
                 cwicz_hours = _safe_int(row[cwicz_col] if len(row) > cwicz_col else None)
                 inne_hours = _safe_int(row[inne_col] if len(row) > inne_col else None)
                 konsult_hours = _safe_int(row[konsult_col] if len(row) > konsult_col else None)
+                selfwork_hours = _safe_int(row[praca_wlasna_col] if len(row) > praca_wlasna_col else None)
 
                 # Exercise type
                 exercise_type = ""
@@ -267,19 +272,21 @@ def extract_plan_subjects(pages_data, metadata=None):
                     subject["numCNS"] = str(cwicz_hours) if cwicz_hours else ""
                     subject["numInNS"] = str(inne_hours) if inne_hours else ""
                     subject["numKNS"] = str(konsult_hours) if konsult_hours else ""
+                    subject["numPwNS"] = str(selfwork_hours) if selfwork_hours else ""
                 else:
                     subject["numTS"] = str(total_hours) if total_hours else ""
                     subject["numWS"] = str(wyklad_hours) if wyklad_hours else ""
                     subject["numCS"] = str(cwicz_hours) if cwicz_hours else ""
                     subject["numInS"] = str(inne_hours) if inne_hours else ""
                     subject["numKS"] = str(konsult_hours) if konsult_hours else ""
+                    subject["numPwS"] = str(selfwork_hours) if selfwork_hours else ""
 
                 subjects.append(subject)
 
     return subjects
 
 
-def extract_full_plan(parsed_pdf):
+def extract_full_plan(parsed_pdf, override_tryb=None):
     """
     Main entry point: takes the output of file_parser.parse_pdf() and returns
     a dict with metadata and subjects.
@@ -288,6 +295,9 @@ def extract_full_plan(parsed_pdf):
     text = parsed_pdf.get("content", "")
 
     metadata = extract_plan_metadata(text)
+    if override_tryb:
+        metadata["override_tryb"] = override_tryb
+        
     subjects = extract_plan_subjects(pages, metadata)
 
     return {

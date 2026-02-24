@@ -94,7 +94,7 @@ async def ai_generate(request: AIGenerateRequest):
 
 
 @app.post("/api/process-plan")
-async def process_plan(file: UploadFile = File(...)):
+async def process_plan(file: UploadFile = File(...), tryb: str = None):
     """Process a study plan PDF to extract per-subject hour data."""
     if not file.filename.endswith(".pdf"):
         return JSONResponse(content={"error": "Plan studiów musi być w formacie PDF."}, status_code=400)
@@ -111,7 +111,7 @@ async def process_plan(file: UploadFile = File(...)):
                 status_code=500
             )
 
-        result = plan_parser.extract_full_plan(parsed_data)
+        result = plan_parser.extract_full_plan(parsed_data, override_tryb=tryb)
         return JSONResponse(content=result, status_code=200)
     finally:
         if os.path.exists(file_location):

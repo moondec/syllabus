@@ -11,9 +11,12 @@ export default function SyllabusWizard() {
     const [extractedSubjects, setExtractedSubjects] = useState([]); // Array z API po ekstrakcji wielu subjectow
     const [syllabusData, setSyllabusData] = useState(null); // Obecnie edytowany pojedynczy sylabus
     const [language, setLanguage] = useState('pl'); // 'pl' or 'en'
-    const [planData, setPlanData] = useState(null); // Plan studiów data (subjects with hours)
-    const [planLoading, setPlanLoading] = useState(false);
-    const [planMeta, setPlanMeta] = useState(null); // Plan metadata (tryb, poziom)
+    const [planDataS1, setPlanDataS1] = useState(null); // I stopień - stacjonarny
+    const [planDataS2, setPlanDataS2] = useState(null); // II stopień - stacjonarny
+    const [planDataNS1, setPlanDataNS1] = useState(null); // I stopień - niestacjonarny
+    const [planDataNS2, setPlanDataNS2] = useState(null); // II stopień - niestacjonarny
+
+    const [planLoading, setPlanLoading] = useState({ S1: false, S2: false, NS1: false, NS2: false });
 
     // AI Provider Settings State
     const [showSettings, setShowSettings] = useState(false);
@@ -60,43 +63,70 @@ export default function SyllabusWizard() {
     const handleSelectSubject = (subject) => {
         // Merge plan data if available
         let merged = { ...subject };
-        if (planData && planData.length > 0) {
+
+        const mergeFromPlanList = (planList) => {
+            if (!planList || !planList.length) return;
             const subjectName = (subject.nazwa_przedmiotu || '').replace(/^\d+\.\s*/, '').trim().toLowerCase();
-            const planMatch = planData.find(p => {
+            const planMatch = planList.find(p => {
                 const planName = (p.nazwa_przedmiotu || '').trim().toLowerCase();
                 return planName === subjectName || subjectName.includes(planName) || planName.includes(subjectName);
             });
             if (planMatch) {
-                // Merge hour fields from plan into subject
                 const hourKeys = ['numWS', 'numWNS', 'numCS', 'numCNS', 'numPS', 'numPNS', 'numLS', 'numLNS',
                     'numKS', 'numKNS', 'numPwS', 'numPwNS', 'numInS', 'numInNS', 'numTS', 'numTNS'];
                 hourKeys.forEach(k => {
                     if (planMatch[k] && !merged[k]) merged[k] = planMatch[k];
                 });
-                // Also merge ects, semestr, jednostka if missing
                 if (!merged.ects && planMatch.ects) merged.ects = planMatch.ects;
                 if (!merged.semestr && planMatch.semestr) merged.semestr = planMatch.semestr;
                 if (!merged.jednostka && planMatch.jednostka) merged.jednostka = planMatch.jednostka;
                 if (!merged.nazwa_angielska && planMatch.nazwa_angielska) merged.nazwa_angielska = planMatch.nazwa_angielska;
             }
+        };
+
+        // Determine level from subject metadata
+        const levelStr = (subject.level || '').toLowerCase();
+        const isLevel1 = levelStr.includes('pierwszego') || levelStr.includes(' i°') || levelStr.includes(' i °');
+        const isLevel2 = levelStr.includes('drugiego') || levelStr.includes(' ii°') || levelStr.includes(' ii °');
+
+        if (isLevel1) {
+            mergeFromPlanList(planDataS1);
+            mergeFromPlanList(planDataNS1);
+        } else if (isLevel2) {
+            mergeFromPlanList(planDataS2);
+            mergeFromPlanList(planDataNS2);
+        } else {
+            // Fallback: merge from all available plans if level is unknown
+            mergeFromPlanList(planDataS1);
+            mergeFromPlanList(planDataNS1);
+            mergeFromPlanList(planDataS2);
+            mergeFromPlanList(planDataNS2);
         }
+
         setSyllabusData(merged);
         setStep(3);
     };
 
-    const handlePlanUpload = async (e) => {
+    const handlePlanUpload = async (e, type) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setPlanLoading(true);
+
+        setPlanLoading(prev => ({ ...prev, [type]: true }));
         setError(null);
+
+        const tryb = type.startsWith('S') ? 'S' : 'NS';
+
         try {
-            const result = await processPlan(file);
-            setPlanData(result.subjects || []);
-            setPlanMeta(result.metadata || null);
+            const result = await processPlan(file, tryb);
+            const subjects = result.subjects || [];
+            if (type === 'S1') setPlanDataS1(subjects);
+            else if (type === 'S2') setPlanDataS2(subjects);
+            else if (type === 'NS1') setPlanDataNS1(subjects);
+            else if (type === 'NS2') setPlanDataNS2(subjects);
         } catch (err) {
-            setError(err.message || 'B\u0142\u0105d podczas przetwarzania planu studi\u00f3w');
+            setError(err.message || `B\u0142\u0105d podczas przetwarzania planu (${type})`);
         } finally {
-            setPlanLoading(false);
+            setPlanLoading(prev => ({ ...prev, [type]: false }));
         }
     };
 
@@ -226,34 +256,69 @@ export default function SyllabusWizard() {
                             <FileUploader onFileSelect={handleFileUpload} />
                         )}
 
-                        {/* Plan studiów uploader */}
+                        {/* Plan studiów uploader section */}
                         <div className="mt-8 pt-6 border-t border-slate-200">
                             <h3 className="text-lg font-semibold text-slate-700 mb-2 flex items-center gap-2">
                                 <FileUp className="w-5 h-5 text-emerald-600" />
-                                Plan studiów (opcjonalnie)
+                                Plany studiów (opcjonalnie)
                             </h3>
-                            <p className="text-sm text-slate-500 mb-4">Wgraj plik PDF z planem studiów, aby automatycznie wypełnić pola godzinowe (wykłady, ćwiczenia, laboratoria itp.).</p>
+                            <p className="text-sm text-slate-500 mb-6">Wgraj plany dla odpowiednich poziomów i trybów studiów.</p>
 
-                            {planLoading ? (
-                                <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                                    <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
-                                    <span className="text-emerald-800 font-medium">Przetwarzam plan studiów...</span>
+                            <div className="space-y-8">
+                                {/* Poziom I */}
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-700 mb-4 bg-slate-100 py-1.5 px-3 rounded-md border-l-4 border-indigo-400">
+                                        Studia I stopnia
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <PlanUploader
+                                            label="Stacjonarny (S)"
+                                            type="S1"
+                                            data={planDataS1}
+                                            loading={planLoading.S1}
+                                            onUpload={handlePlanUpload}
+                                            onClear={() => setPlanDataS1(null)}
+                                            accentColor="emerald"
+                                        />
+                                        <PlanUploader
+                                            label="Niestacjonarny (NS)"
+                                            type="NS1"
+                                            data={planDataNS1}
+                                            loading={planLoading.NS1}
+                                            onUpload={handlePlanUpload}
+                                            onClear={() => setPlanDataNS1(null)}
+                                            accentColor="indigo"
+                                        />
+                                    </div>
                                 </div>
-                            ) : planData ? (
-                                <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                                    <p className="text-emerald-800 font-medium">
-                                        ✅ Załadowano plan studiów
-                                        {planMeta && <span className="text-emerald-600 font-normal ml-2">({planMeta.tryb === 'NS' ? 'niestacjonarne' : 'stacjonarne'}{planMeta.poziom ? `, ${planMeta.poziom}` : ''})</span>}
-                                    </p>
-                                    <p className="text-sm text-emerald-700 mt-1">Znaleziono {planData.length} przedmiotów z danymi godzinowymi.</p>
+
+                                {/* Poziom II */}
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-700 mb-4 bg-slate-100 py-1.5 px-3 rounded-md border-l-4 border-emerald-400">
+                                        Studia II stopnia
+                                    </h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <PlanUploader
+                                            label="Stacjonarny (S)"
+                                            type="S2"
+                                            data={planDataS2}
+                                            loading={planLoading.S2}
+                                            onUpload={handlePlanUpload}
+                                            onClear={() => setPlanDataS2(null)}
+                                            accentColor="emerald"
+                                        />
+                                        <PlanUploader
+                                            label="Niestacjonarny (NS)"
+                                            type="NS2"
+                                            data={planDataNS2}
+                                            loading={planLoading.NS2}
+                                            onUpload={handlePlanUpload}
+                                            onClear={() => setPlanDataNS2(null)}
+                                            accentColor="indigo"
+                                        />
+                                    </div>
                                 </div>
-                            ) : (
-                                <label className="flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer transition-all">
-                                    <FileUp className="w-5 h-5 text-slate-400" />
-                                    <span className="text-sm font-medium text-slate-500">Kliknij aby wgrać plik PDF z planem studiów</span>
-                                    <input type="file" accept=".pdf" className="hidden" onChange={handlePlanUpload} />
-                                </label>
-                            )}
+                            </div>
                         </div>
                     </div>
                 )}
@@ -465,5 +530,48 @@ export default function SyllabusWizard() {
                 )}
             </div>
         </div>
+    );
+}
+
+function PlanUploader({ label, type, data, loading, onUpload, onClear, accentColor }) {
+    const isEmerald = accentColor === 'emerald';
+    const bgClass = isEmerald ? 'bg-emerald-50' : 'bg-indigo-50';
+    const borderClass = isEmerald ? 'border-emerald-200' : 'border-indigo-200';
+    const textClass = isEmerald ? 'text-emerald-800' : 'text-indigo-800';
+    const subTextClass = isEmerald ? 'text-emerald-600' : 'text-indigo-600';
+    const iconClass = isEmerald ? 'text-emerald-600' : 'text-indigo-600';
+    const hoverBorderClass = isEmerald ? 'hover:border-emerald-400' : 'hover:border-indigo-400';
+    const hoverBgClass = isEmerald ? 'hover:bg-emerald-50' : 'hover:bg-indigo-50';
+    const clearBtnClass = isEmerald ? 'text-emerald-400 hover:text-emerald-600' : 'text-indigo-400 hover:text-indigo-600';
+
+    if (loading) {
+        return (
+            <div className={`flex items-center gap-3 p-4 ${bgClass} rounded-lg border ${borderClass}`}>
+                <Loader2 className={`w-5 h-5 ${iconClass} animate-spin`} />
+                <span className={`${textClass} text-sm font-medium`}>Analizuję {label}...</span>
+            </div>
+        );
+    }
+
+    if (data) {
+        return (
+            <div className={`p-4 ${bgClass} rounded-lg border ${borderClass} flex justify-between items-center`}>
+                <div>
+                    <p className={`${textClass} text-sm font-bold`}>✅ {label} załadowany</p>
+                    <p className={`text-xs ${subTextClass}`}>{data.length} przedmiotów</p>
+                </div>
+                <button onClick={onClear} className={`${clearBtnClass} transition-colors`}>
+                    <X className="w-4 h-4" />
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <label className={`flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 ${hoverBorderClass} ${hoverBgClass} cursor-pointer transition-all`}>
+            <FileUp className="w-4 h-4 text-slate-400" />
+            <span className="text-xs font-medium text-slate-500">Wgraj plan {label}</span>
+            <input type="file" accept=".pdf" className="hidden" onChange={(e) => onUpload(e, type)} />
+        </label>
     );
 }

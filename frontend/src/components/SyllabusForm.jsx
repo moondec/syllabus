@@ -124,11 +124,11 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                 {[
                                     { key: 'numWS', label: 'Wykłady' },
                                     { key: 'numCS', label: 'Ćwiczenia' },
-                                    { key: 'numPS', label: 'Zajęcia terenowe' },
                                     { key: 'numLS', label: 'Laboratoria' },
-                                    { key: 'numKS', label: 'Konsultacje' },
-                                    { key: 'numPwS', label: 'Praktyki' },
+                                    { key: 'numPS', label: 'Zajęcia terenowe' },
                                     { key: 'numInS', label: 'Inne zajęcia' },
+                                    { key: 'numKS', label: 'Konsultacje' },
+                                    { key: 'numPwS', label: 'Praca własna' },
                                     { key: 'numTS', label: 'ŁĄCZNIE', bold: true },
                                 ].map(h => (
                                     <div key={h.key} className="flex items-center gap-3">
@@ -150,11 +150,11 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                 {[
                                     { key: 'numWNS', label: 'Wykłady' },
                                     { key: 'numCNS', label: 'Ćwiczenia' },
-                                    { key: 'numPNS', label: 'Zajęcia terenowe' },
                                     { key: 'numLNS', label: 'Laboratoria' },
-                                    { key: 'numKNS', label: 'Konsultacje' },
-                                    { key: 'numPwNS', label: 'Praktyki' },
+                                    { key: 'numPNS', label: 'Zajęcia terenowe' },
                                     { key: 'numInNS', label: 'Inne zajęcia' },
+                                    { key: 'numKNS', label: 'Konsultacje' },
+                                    { key: 'numPwNS', label: 'Praca własna' },
                                     { key: 'numTNS', label: 'ŁĄCZNIE', bold: true },
                                 ].map(h => (
                                     <div key={h.key} className="flex items-center gap-3">
