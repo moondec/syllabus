@@ -8,6 +8,7 @@ import shutil
 import file_parser
 import data_extractor_v2
 import plan_extractor
+import plan_parser
 import document_generator
 import data_merger
 import bielik_service
@@ -20,6 +21,7 @@ class AIGenerateRequest(BaseModel):
     context_info: Dict
     provider_config: Optional[Dict] = None
     language: Optional[str] = "pl"
+    field_value: Optional[str] = ""
 
 app = FastAPI()
 
@@ -81,13 +83,39 @@ async def ai_generate(request: AIGenerateRequest):
         field_type=request.field_type,
         context=request.context_info,
         provider_config=request.provider_config,
-        language=request.language or "pl"
+        language=request.language or "pl",
+        field_value=request.field_value or ""
     )
     
     if "error" in result:
         return JSONResponse(content=result, status_code=500)
         
     return JSONResponse(content={"generated_text": result["generated_text"]}, status_code=200)
+
+
+@app.post("/api/process-plan")
+async def process_plan(file: UploadFile = File(...)):
+    """Process a study plan PDF to extract per-subject hour data."""
+    if not file.filename.endswith(".pdf"):
+        return JSONResponse(content={"error": "Plan studiów musi być w formacie PDF."}, status_code=400)
+
+    file_location = f"temp_plan_{file.filename}"
+    try:
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        parsed_data = file_parser.parse_pdf(file_location)
+        if not parsed_data or parsed_data.get("error"):
+            return JSONResponse(
+                content={"error": parsed_data.get("error") if parsed_data else "Nie udało się sparsować pliku PDF."},
+                status_code=500
+            )
+
+        result = plan_parser.extract_full_plan(parsed_data)
+        return JSONResponse(content=result, status_code=200)
+    finally:
+        if os.path.exists(file_location):
+            os.remove(file_location)
 
 
 @app.post("/api/generate-syllabus")

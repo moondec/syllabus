@@ -29,8 +29,55 @@ Stworzenie aplikacji internetowej, która zautomatyzuje proces generowania sylab
     * Pozwala na **wielokrotny wybór** symboli z listy, z możliwością dodawania kolejnych pasujących.
     * Wyświetla **opis danego efektu** przy wyborze (jako pomoc), ale do dokumentu końcowego trafia jedynie sam symbol.
     * Wyświetla sekcje "Kierunkowe efekty uczenia się" i "Sposoby weryfikacji" jako pomoc dla użytkownika.
-    * Pozwala na ręczne wypełnienie pól: `{{wiedza}}`, `{{umiejętności}}`, `{{kompetencje}}`, `{{cel_przedmiotu}}`, `{{metody_dydaktyczne}}`, `{{metody_weryfikacji}}`, `{{literatura}}`.
-* **Eksport do Pliku:** Generowanie dokumentu na podstawie `template.docx` przy użyciu `docxtpl`.
+    * Pozwala na ręczne wypełnienie pól: `{{wiedza}}`, `{{umiejetnosci}}`, `{{kompetencje}}`, `{{cel_przedmiotu}}`, `{{metody_dydaktyczne}}`, `{{metody_weryfikacji}}`, `{{literatura}}`.
+* **Eksport do Pliku:** Generowanie dokumentu na podstawie `template_pl.docx` i `template_en.docx` w zależności od języka wybranego przez użytkownika przy użyciu `docxtpl`. 
+
+* **Wielojęzyczność:** Obsługa języka polskiego i angielskiego. Użytkownik może wybrać język dokumentu i AI generuje treści w wybranym języku.
+
+---
+
+Znaczenie tagów w szablonie:
+{{ name }} - nazwa przedmiotu po polsku (dane skopiowne z programu studiów)
+{{ ects }} - liczba ECTS (dane skopiowne z programu studiów)
+{{ name_en }} - nazwa przedmiotu po angielsku (dane skopiowne z programu studiów, w razie potrzeby uzupełnia AI)
+{{ unit }} - jednostka realizująca (dane skopiowne z programu studiów)
+{{ kierownik }} - kierownik przedmiotu (dane uzupełnia użytkownik)
+{{ field_of_study }} - kierunek studiów (dane skopiowne z programu studiów)
+{{ level }} - poziom kształcenia (dane skopiowne z programu studiów)
+{{ profile }} - profil kształcenia (dane skopiowne z programu studiów)
+{{ semester }} - semestr (dane skopiowne z programu studiów)
+{{ zakres }} - W zakresie / Specjalizacja magisterska / Moduł kształcenia
+{{ numWS }} - liczba godzin wykładów na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numWNS }} - liczba godzin wykładów na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numCS }} - liczba godzin ćwiczeń na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numCNS }} - liczba godzin ćwiczeń na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numPS }} - liczba godzin terenowych na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numPNS }} - liczba godzin terenowych na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numLS }}  - liczba godzin laboratoriów na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numLNS }} - liczba godzin laboratoriów na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numKS }} - liczba godzin konsultacji na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numKNS }} - liczba godzin konsultacji na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numPwS }} - liczba godzin praktyk na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numPwNS }} - liczba godzin praktyk na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numInS }} - liczba godzin innych zajęć na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numInNS }} - liczba godzin innych zajęć na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ numTS  }} - całkowita liczba godzin zajęć na studiach stacjonarnych (dane skopiowne z planu studiów)
+{{ numTNS }} - całkowita liczba godzin zajęć na studiach niestacjonarnych (dane skopiowne z planu studiów)
+{{ cel_przedmiotu }} - cel przedmiotu (zadanie AI)
+{{ metody_dydaktyczne }} - metody dydaktyczne (zadanie AI)
+{{ wiedza }} - opis zdobytych kwalifikacji w zakresie wiedzy, przez absolwenta (zadanie AI)
+{{ umiejetnosci }} - opis zdobytych kwalifikacji w zakresie umiejętności, przez absolwenta (zadanie AI)
+{{ kompetencje }} - opis zdobytych kwalifikacji w zakresie kompetencji społecznych, przez absolwenta (zadanie AI)
+{{ learning_outcomesW }} - kierunkowe efekty uczenia się w zakresie wiedzy (skopiowane z programu studiów)
+{{ learning_outcomesU }} - kierunkowe efekty uczenia się w zakresie umiejętności (skopiowane z programu studiów)
+{{ learning_outcomesK }} - kierunkowe efekty uczenia się w zakresie kompetencji społecznych (skopiowane z programu studiów)
+{{ metody_weryfikacji }} - sposoby weryfikacji efektów uczenia się (zadanie AI)
+{{ kursSym }} - symbole przedmiotowe powiązane z symbolami kierunkowymi. Dopasowanie symboli przedmiotowych do symboli kierunkowych jest dokonywane na podstawie analizy treści programowych (zadanie AI).
+{{ content }} - treści programowe, przekazywane w ramach przedmiotu. Opis wykładów, ćwiczeń, laboratoriów, praktyk, konsultacji, samokształcenia, itp. (zadanie AI)
+{{ formy_zaliczenia }} - W jaki sposób zorgonizowane będzie zaliczenie przedmiotu. Opis egzaminów, zaliczeń, itp. (czy egzamin ustny, test, zadania obliczeniowe, projekt) (wypełnia użytkownik)
+{{ procOcena }} - procentowy udział poszczególnych form zaliczenia w ocenie końcowej (wypełnia użytkownik)
+{{ literatura }} - literatura (wypełnia użytkownik)
+
 
 ---
 

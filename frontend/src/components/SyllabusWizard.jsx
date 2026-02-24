@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import FileUploader from './FileUploader';
 import SyllabusForm from './SyllabusForm';
-import { processDocument, generateSyllabus } from '../services/apiService';
-import { Loader2, Download, AlertCircle, ChevronRight, List, ArrowLeft, Settings, X, Languages } from 'lucide-react';
+import { processDocument, generateSyllabus, processPlan } from '../services/apiService';
+import { Loader2, Download, AlertCircle, ChevronRight, List, ArrowLeft, Settings, X, Languages, FileUp } from 'lucide-react';
 
 export default function SyllabusWizard() {
     const [step, setStep] = useState(1);
@@ -11,6 +11,9 @@ export default function SyllabusWizard() {
     const [extractedSubjects, setExtractedSubjects] = useState([]); // Array z API po ekstrakcji wielu subjectow
     const [syllabusData, setSyllabusData] = useState(null); // Obecnie edytowany pojedynczy sylabus
     const [language, setLanguage] = useState('pl'); // 'pl' or 'en'
+    const [planData, setPlanData] = useState(null); // Plan studiów data (subjects with hours)
+    const [planLoading, setPlanLoading] = useState(false);
+    const [planMeta, setPlanMeta] = useState(null); // Plan metadata (tryb, poziom)
 
     // AI Provider Settings State
     const [showSettings, setShowSettings] = useState(false);
@@ -55,8 +58,46 @@ export default function SyllabusWizard() {
     };
 
     const handleSelectSubject = (subject) => {
-        setSyllabusData(subject);
+        // Merge plan data if available
+        let merged = { ...subject };
+        if (planData && planData.length > 0) {
+            const subjectName = (subject.nazwa_przedmiotu || '').replace(/^\d+\.\s*/, '').trim().toLowerCase();
+            const planMatch = planData.find(p => {
+                const planName = (p.nazwa_przedmiotu || '').trim().toLowerCase();
+                return planName === subjectName || subjectName.includes(planName) || planName.includes(subjectName);
+            });
+            if (planMatch) {
+                // Merge hour fields from plan into subject
+                const hourKeys = ['numWS', 'numWNS', 'numCS', 'numCNS', 'numPS', 'numPNS', 'numLS', 'numLNS',
+                    'numKS', 'numKNS', 'numPwS', 'numPwNS', 'numInS', 'numInNS', 'numTS', 'numTNS'];
+                hourKeys.forEach(k => {
+                    if (planMatch[k] && !merged[k]) merged[k] = planMatch[k];
+                });
+                // Also merge ects, semestr, jednostka if missing
+                if (!merged.ects && planMatch.ects) merged.ects = planMatch.ects;
+                if (!merged.semestr && planMatch.semestr) merged.semestr = planMatch.semestr;
+                if (!merged.jednostka && planMatch.jednostka) merged.jednostka = planMatch.jednostka;
+                if (!merged.nazwa_angielska && planMatch.nazwa_angielska) merged.nazwa_angielska = planMatch.nazwa_angielska;
+            }
+        }
+        setSyllabusData(merged);
         setStep(3);
+    };
+
+    const handlePlanUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPlanLoading(true);
+        setError(null);
+        try {
+            const result = await processPlan(file);
+            setPlanData(result.subjects || []);
+            setPlanMeta(result.metadata || null);
+        } catch (err) {
+            setError(err.message || 'B\u0142\u0105d podczas przetwarzania planu studi\u00f3w');
+        } finally {
+            setPlanLoading(false);
+        }
     };
 
     const handleGenerateDocument = async () => {
@@ -184,6 +225,36 @@ export default function SyllabusWizard() {
                         ) : (
                             <FileUploader onFileSelect={handleFileUpload} />
                         )}
+
+                        {/* Plan studiów uploader */}
+                        <div className="mt-8 pt-6 border-t border-slate-200">
+                            <h3 className="text-lg font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                                <FileUp className="w-5 h-5 text-emerald-600" />
+                                Plan studiów (opcjonalnie)
+                            </h3>
+                            <p className="text-sm text-slate-500 mb-4">Wgraj plik PDF z planem studiów, aby automatycznie wypełnić pola godzinowe (wykłady, ćwiczenia, laboratoria itp.).</p>
+
+                            {planLoading ? (
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                                    <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+                                    <span className="text-emerald-800 font-medium">Przetwarzam plan studiów...</span>
+                                </div>
+                            ) : planData ? (
+                                <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                                    <p className="text-emerald-800 font-medium">
+                                        ✅ Załadowano plan studiów
+                                        {planMeta && <span className="text-emerald-600 font-normal ml-2">({planMeta.tryb === 'NS' ? 'niestacjonarne' : 'stacjonarne'}{planMeta.poziom ? `, ${planMeta.poziom}` : ''})</span>}
+                                    </p>
+                                    <p className="text-sm text-emerald-700 mt-1">Znaleziono {planData.length} przedmiotów z danymi godzinowymi.</p>
+                                </div>
+                            ) : (
+                                <label className="flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer transition-all">
+                                    <FileUp className="w-5 h-5 text-slate-400" />
+                                    <span className="text-sm font-medium text-slate-500">Kliknij aby wgrać plik PDF z planem studiów</span>
+                                    <input type="file" accept=".pdf" className="hidden" onChange={handlePlanUpload} />
+                                </label>
+                            )}
+                        </div>
                     </div>
                 )}
 

@@ -41,14 +41,15 @@ export const generateSyllabus = async (data, format = 'docx') => {
     }
 };
 
-export const aiGenerate = async (subjectName, fieldType, contextInfo, providerConfig = null, language = 'pl') => {
+export const aiGenerate = async (subjectName, fieldType, contextInfo, providerConfig = null, language = 'pl', fieldValue = '') => {
     try {
         const payload = {
             subject_name: subjectName,
             field_type: fieldType,
             context_info: contextInfo,
             provider_config: providerConfig,
-            language: language
+            language: language,
+            field_value: fieldValue
         };
 
         const response = await axios.post(`${API_BASE_URL}/ai-generate`, payload);
@@ -62,3 +63,18 @@ export const aiGenerate = async (subjectName, fieldType, contextInfo, providerCo
     }
 };
 
+export const processPlan = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await axios.post(`${API_BASE_URL}/process-plan`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.error || 'Błąd podczas przetwarzania planu studiów.');
+    }
+};

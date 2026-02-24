@@ -41,7 +41,20 @@ def generate_docx(subject_data, template_path=None):
         context["formy_zaliczenia"] = subject_data.get("formy_zaliczenia", "")
         context["literatura"] = subject_data.get("literatura", "")
         context["umiejetnosci"] = subject_data.get("umiejetnosci", "")
-        
+
+        # Hour mappings (from plan studiów)
+        hour_tags = [
+            "numWS", "numWNS", "numCS", "numCNS", "numPS", "numPNS",
+            "numLS", "numLNS", "numKS", "numKNS", "numPwS", "numPwNS",
+            "numInS", "numInNS", "numTS", "numTNS"
+        ]
+        for tag in hour_tags:
+            context[tag] = subject_data.get(tag, "")
+
+        # Other tags
+        context["kursSym"] = subject_data.get("kursSym", "")
+        context["procOcena"] = subject_data.get("procOcena", "")
+
         doc.render(context)
         
         # Sanitize the name for the output path

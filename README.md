@@ -44,13 +44,17 @@ npm run dev
 Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 
 
+## Zrealizowane / Ostatnie Ulepszenia
+
+*   [x] **Integracja z LLM (Bielik):** Pełna integracja z modelami językowymi (np. Bielik) do automatycznego generowania propozycji treści dla wszystkich kluczowych pól sylabusa (cel, metody, treści, efekty). Obsługa kontekstu użytkownika i tłumaczeń PL/EN. *Może wymagać drobnego doszlifowania promptów.*
+*   [x] **Wielojęzyczność:** Dynamiczny wybór języka dokumentu i AI bezpośrednio w edytorze.
+
 ## TODO / Przyszłe Ulepszenia
 
-*   **Integracja z LLM (np. Bielik):** Wykorzystanie modeli językowych do automatycznego generowania propozycji treści dla pól takich jak "Cel przedmiotu", "Wiedza", "Umiejętności" na podstawie samej nazwy przedmiotu i przypisanych symboli efektów.
-*   **Perfekcyjne Mapowanie Dokumentu:** Dalsze udoskonalanie szablonu `template.docx` i stylizacji tabel, aby generowany plik był identyczny z oficjalnym wzorem Uczelni (np. specyficzne obramowania, logotypy, układy sekcji).
-*   **Walidacja Efektów:** Automatyczne sprawdzanie, czy wybrane przez użytkownika symbole efektów pokrywają się z wymogami programu studiów dla danej grupy przedmiotów.
-*   **Obsługa Wielu Szablonów:** System wyboru z jakiego szablonu (dla jakiego Wydziału/Instytutu) ma zostać wygenerowany sylabus.
-*   **Moduł Archiwizacji:** Możliwość zapisu wygenerowanych sylabusów w bazie danych w celu ich późniejszej edycji.
+*   **Perfekcyjne Mapowanie Dokumentu:** Dalsze udoskonalanie szablonu `template.docx` i stylizacji tabel, aby generowany plik był identyczny z oficjalnym wzorem Uczelni.
+*   **Walidacja Efektów:** Automatyczne sprawdzanie, czy wybrane przez użytkownika symbole efektów pokrywają się z wymogami programu studiów.
+*   **Obsługa Wielu Szablonów:** System wyboru szablonu dla różnych jednostek organizacyjnych.
+*   **Moduł Archiwizacji:** Zapis i edycja wcześniej wygenerowanych sylabusów w chmurze/bazie danych.
 
 ## Licencja
 

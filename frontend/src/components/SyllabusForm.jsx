@@ -5,7 +5,7 @@ import { aiGenerate } from '../services/apiService';
 
 const fields = [
     { key: 'nazwa_przedmiotu', label: 'Nazwa przedmiotu', desc: 'Pełna nazwa kursu/modułu', type: 'text' },
-    { key: 'nazwa_angielska', label: 'Nazwa w j. angielskim', desc: 'Tłumaczenie nazwy przedmiotu', type: 'text' },
+    { key: 'nazwa_angielska', label: 'Nazwa w j. angielskim', desc: 'Tłumaczenie nazwy przedmiotu', type: 'text', ai: true },
     { key: 'kierunek', label: 'Kierunek studiów', desc: 'Sprecyzowany kierunek studiów', type: 'text' },
     { key: 'poziom', label: 'Poziom kształcenia', desc: 'np. Studia I lub II stopnia', type: 'text' },
     { key: 'profil', label: 'Profil kształcenia', desc: 'np. ogólnoakademicki / praktyczny', type: 'text' },
@@ -14,15 +14,15 @@ const fields = [
     { key: 'ects', label: 'Punkty ECTS', desc: 'Ilość punktów ECTS', type: 'text' },
     { key: 'jednostka', label: 'Jednostka realizująca', desc: 'Katedra lub wydział', type: 'text' },
     { key: 'kierownik', label: 'Kierownik przedmiotu', desc: 'Tytuł i nazwisko prowadzącego', type: 'text' },
-    { key: 'cel_przedmiotu', label: 'Cel przedmiotu', desc: 'Cele kształcenia', type: 'textarea' },
+    { key: 'cel_przedmiotu', label: 'Cel przedmiotu', desc: 'Cele kształcenia', type: 'textarea', ai: true },
     { key: 'zalozenia', label: 'Założenia i wymagania', desc: 'Wymagania wstępne', type: 'textarea' },
-    { key: 'metody_dydaktyczne', label: 'Metody dydaktyczne', desc: 'Sposób prowadzenia zajęć', type: 'textarea' },
-    { key: 'metody_weryfikacji', label: 'Metody weryfikacji', desc: 'Jak sprawdzana jest wiedza', type: 'textarea' },
+    { key: 'metody_dydaktyczne', label: 'Metody dydaktyczne', desc: 'Sposób prowadzenia zajęć', type: 'textarea', ai: true },
+    { key: 'metody_weryfikacji', label: 'Metody weryfikacji', desc: 'Jak sprawdzana jest wiedza', type: 'textarea', ai: true },
     { key: 'literatura', label: 'Literatura', desc: 'Spis literatury podstawowej i uzupełniającej', type: 'textarea' },
-    { key: 'tresci', label: 'Treści programowe', desc: 'Krótki opis poruszanych zagadnień', type: 'textarea' },
-    { key: 'wiedza', label: 'Wiedza (Opisowo)', desc: 'Opisowe efekty w kategorii WIEDZA', type: 'textarea' },
-    { key: 'umiejetnosci', label: 'Umiejętności (Opisowo)', desc: 'Opisowe efekty w kategorii UMIEJĘTNOŚCI', type: 'textarea' },
-    { key: 'kompetencje', label: 'Kompetencje społeczne (Opisowo)', desc: 'Opisowe efekty w kategorii KOMPETENCJE', type: 'textarea' },
+    { key: 'tresci', label: 'Treści programowe', desc: 'Krótki opis poruszanych zagadnień', type: 'textarea', ai: true },
+    { key: 'wiedza', label: 'Wiedza (Opisowo)', desc: 'Opisowe efekty w kategorii WIEDZA', type: 'textarea', ai: true },
+    { key: 'umiejetnosci', label: 'Umiejętności (Opisowo)', desc: 'Opisowe efekty w kategorii UMIEJĘTNOŚCI', type: 'textarea', ai: true },
+    { key: 'kompetencje', label: 'Kompetencje społeczne (Opisowo)', desc: 'Opisowe efekty w kategorii KOMPETENCJE', type: 'textarea', ai: true },
     { key: 'learning_outcomesW', label: 'Symbole: WIEDZA', desc: 'Symbole efektów kierunkowych (W)', type: 'multi-select', category: 'W' },
     { key: 'learning_outcomesU', label: 'Symbole: UMIEJĘTNOŚCI', desc: 'Symbole efektów kierunkowych (U)', type: 'multi-select', category: 'U' },
     { key: 'learning_outcomesK', label: 'Symbole: KOMPETENCJE', desc: 'Symbole efektów kierunkowych (K)', type: 'multi-select', category: 'K' }
@@ -43,7 +43,8 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
             const contextInfo = {
                 tresci: data.tresci || '',
                 kierunek: data.kierunek || '',
-                poziom: data.poziom || ''
+                poziom: data.poziom || '',
+                cel_przedmiotu: data.cel_przedmiotu || ''
             };
 
             // For outcomes fields, provide descriptions of selected symbols
@@ -59,7 +60,8 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                 contextInfo.symbols_info = symbolsInfo;
             }
 
-            const generatedText = await aiGenerate(data.nazwa_przedmiotu, fieldKey, contextInfo, providerConfig, language);
+            const fieldValue = data[fieldKey] || '';
+            const generatedText = await aiGenerate(data.nazwa_przedmiotu, fieldKey, contextInfo, providerConfig, language, fieldValue);
 
             // Set generated text to the field
             handleChange(fieldKey, generatedText);
@@ -105,6 +107,72 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                 </div>
             )}
 
+            {/* Sekcja godzinowa */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-emerald-50/50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-800">Wymiar godzinowy</h3>
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full uppercase tracking-wider">
+                        Plan studiów
+                    </span>
+                </div>
+                <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Stacjonarne */}
+                        <div>
+                            <h4 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Stacjonarne</h4>
+                            <div className="space-y-2">
+                                {[
+                                    { key: 'numWS', label: 'Wykłady' },
+                                    { key: 'numCS', label: 'Ćwiczenia' },
+                                    { key: 'numPS', label: 'Zajęcia terenowe' },
+                                    { key: 'numLS', label: 'Laboratoria' },
+                                    { key: 'numKS', label: 'Konsultacje' },
+                                    { key: 'numPwS', label: 'Praktyki' },
+                                    { key: 'numInS', label: 'Inne zajęcia' },
+                                    { key: 'numTS', label: 'ŁĄCZNIE', bold: true },
+                                ].map(h => (
+                                    <div key={h.key} className="flex items-center gap-3">
+                                        <label className={`text-sm ${h.bold ? 'font-bold text-slate-800' : 'text-slate-600'} w-32 flex-shrink-0`}>{h.label}</label>
+                                        <input
+                                            type="text"
+                                            value={data[h.key] || ''}
+                                            onChange={(e) => handleChange(h.key, e.target.value)}
+                                            className={`w-20 text-center bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 ${h.bold ? 'font-bold bg-emerald-50 border-emerald-200' : ''}`}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        {/* Niestacjonarne */}
+                        <div>
+                            <h4 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Niestacjonarne</h4>
+                            <div className="space-y-2">
+                                {[
+                                    { key: 'numWNS', label: 'Wykłady' },
+                                    { key: 'numCNS', label: 'Ćwiczenia' },
+                                    { key: 'numPNS', label: 'Zajęcia terenowe' },
+                                    { key: 'numLNS', label: 'Laboratoria' },
+                                    { key: 'numKNS', label: 'Konsultacje' },
+                                    { key: 'numPwNS', label: 'Praktyki' },
+                                    { key: 'numInNS', label: 'Inne zajęcia' },
+                                    { key: 'numTNS', label: 'ŁĄCZNIE', bold: true },
+                                ].map(h => (
+                                    <div key={h.key} className="flex items-center gap-3">
+                                        <label className={`text-sm ${h.bold ? 'font-bold text-slate-800' : 'text-slate-600'} w-32 flex-shrink-0`}>{h.label}</label>
+                                        <input
+                                            type="text"
+                                            value={data[h.key] || ''}
+                                            onChange={(e) => handleChange(h.key, e.target.value)}
+                                            className={`w-20 text-center bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 ${h.bold ? 'font-bold bg-emerald-50 border-emerald-200' : ''}`}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="bg-indigo-50/50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                     <h3 className="font-semibold text-slate-800">Edytor Sylabusa</h3>
@@ -118,7 +186,9 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                         <div key={f.key} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start border-b border-slate-100 pb-8 last:border-0 last:pb-0">
                             <div className="md:col-span-4 lg:col-span-3">
                                 <label className="block text-sm font-semibold text-slate-700 mb-1">
-                                    {f.label}
+                                    {f.key === 'nazwa_przedmiotu' ? (language === 'en' ? 'Nazwa w j. angielskim' : 'Nazwa przedmiotu') :
+                                        f.key === 'nazwa_angielska' ? (language === 'en' ? 'Nazwa w j. polskim' : 'Nazwa w j. angielskim') :
+                                            f.label}
                                 </label>
                                 <p className="text-xs text-slate-500 italic">{f.desc}</p>
                             </div>
@@ -128,12 +198,12 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                         <textarea
                                             value={data[f.key] || ''}
                                             onChange={(e) => handleChange(f.key, e.target.value)}
-                                            placeholder={f.placeholder || ''}
+                                            placeholder={f.base_value || ''}
                                             rows={5}
                                             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow resize-y disabled:opacity-70 disabled:bg-slate-100"
                                             disabled={aiLoading[f.key]}
                                         />
-                                        {['cel_przedmiotu', 'metody_dydaktyczne', 'wiedza', 'umiejetnosci', 'kompetencje'].includes(f.key) && (
+                                        {f.ai && (
                                             <button
                                                 type="button"
                                                 onClick={() => handleAIGenerate(f.key)}
@@ -157,13 +227,30 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                         label={f.label}
                                     />
                                 ) : (
-                                    <input
-                                        type="text"
-                                        value={data[f.key] || ''}
-                                        onChange={(e) => handleChange(f.key, e.target.value)}
-                                        placeholder={f.placeholder || ''}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow"
-                                    />
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={data[f.key] || ''}
+                                                    onChange={(e) => handleChange(f.key, e.target.value)}
+                                                    placeholder={f.placeholder || ''}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow"
+                                                />
+                                                {f.ai && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleAIGenerate(f.key)}
+                                                        disabled={aiLoading[f.key]}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-100 text-indigo-600 p-1.5 rounded-md hover:bg-indigo-200 transition-colors disabled:opacity-50"
+                                                        title="Przetłumacz / Generuj za pomocą AI"
+                                                    >
+                                                        {aiLoading[f.key] ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <Sparkles className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </div>
                                 )}
                             </div>
                         </div>

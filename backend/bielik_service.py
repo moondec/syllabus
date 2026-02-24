@@ -42,20 +42,24 @@ def get_api_key(provided_key: Optional[str] = None) -> Optional[str]:
         _cached_api_key = key
     return key
 
-def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], language: str = "pl") -> tuple[str, str]:
+def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], language: str = "pl", field_value: str = "") -> tuple[str, str]:
     """
     Returns (system_prompt, user_prompt) tailored for the requested syllabus field.
     Supports 'pl' (Polish) and 'en' (English) output languages.
+    Incorporates existing field_value for context-aware generation.
     """
     # Extract relevant context info
     tresci = context.get("tresci", "")
     kierunek = context.get("kierunek", "")
     poziom = context.get("poziom", "")
+    cel = context.get("cel_przedmiotu", "")
     
     if language == "en":
         base_system = (
             "You are an experienced academic instructor and expert in writing course syllabi. "
             "Your task is to professionally formulate content for selected sections of a syllabus. "
+            "STRICT REQUIREMENT: Return ONLY plain text. Do NOT use any Markdown formatting "
+            "(no bold **, no italics *, no headers #, no markdown-style lists -). "
             "Write concisely, in an academic style, in English. Return only the generated text, "
             "without any additional comments or greetings."
         )
@@ -63,21 +67,30 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
         base_system = (
             "Jesteś doświadczonym nauczycielem akademickim i ekspertem od pisania sylabusów (kart przedmiotów). "
             "Twoim zadaniem jest pomóc w profesjonalnym sformułowaniu treści do wybranych sekcji sylabusa. "
+            "ŚCISŁY WYMÓG: Zwracaj WYŁĄCZNIE czysty tekst. NIE używaj żadnego formatowania Markdown "
+            "(żadnych pogrubień **, kursywy *, nagłówków #, czy list w stylu markdown -). "
             "Pisz zwięźle, akademickim stylem, w języku polskim. Zwracaj sam wygenerowany tekst, bez owijania "
             "go w dodatkowe komentarze czy przywitania."
         )
     
+    context_prefix = ""
+    if field_value:
+        if language == "en":
+            context_prefix = f"The user has already provided some initial ideas or instructions for this field: '{field_value}'. Please incorporate and expand upon them.\n\n"
+        else:
+            context_prefix = f"Użytkownik podał już wstępne pomysły lub polecenia dla tego pola: '{field_value}'. Uwzględnij je i rozwiń.\n\n"
+
     if field_type == "cel_przedmiotu":
         sys_prompt = base_system
         if language == "en":
             user_prompt = (
-                f"Write the 'Course Objectives' for the course '{subject_name}' (field of study: {kierunek}, level: {poziom}).\n"
+                f"{context_prefix}Write the 'Course Objectives' for the course '{subject_name}' (field of study: {kierunek}, level: {poziom}).\n"
                 f"Course content (topics): {tresci}\n\n"
-                "Formulate 2-4 concise objectives as bullet points (e.g. 'O1. To familiarize students with...')."
+                "Formulate 2-4 concise objectives as plain text bullet points (e.g. 'O1. To familiarize students with...')."
             )
         else:
             user_prompt = (
-                f"Napisz 'Cel przedmiotu' dla kursu '{subject_name}' (kierunek: {kierunek}, poziom: {poziom}).\n"
+                f"{context_prefix}Napisz 'Cel przedmiotu' dla kursu '{subject_name}' (kierunek: {kierunek}, poziom: {poziom}).\n"
                 f"Treści programowe (zagadnienia): {tresci}\n\n"
                 "Sformułuj 2-4 zwięzłe cele w punktach lub równoważnikach zdań (np. 'C1. Zapoznanie studentów z...')."
             )
@@ -86,16 +99,55 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
         sys_prompt = base_system
         if language == "en":
             user_prompt = (
-                f"Propose 'Teaching Methods' for the course '{subject_name}'.\n"
+                f"{context_prefix}Propose 'Teaching Methods' for the course '{subject_name}'.\n"
                 f"Course content: {tresci}\n\n"
-                "List traditional and activating methods as bullet points (e.g. 'informational lecture', 'laboratory exercises', 'project-based method')."
+                "List traditional and activating methods as plain text bullet points (e.g. 'informational lecture', 'laboratory exercises')."
             )
         else:
             user_prompt = (
-                f"Zaproponuj 'Metody dydaktyczne' (sposób prowadzenia zajęć) dla przedmiotu '{subject_name}'.\n"
+                f"{context_prefix}Zaproponuj 'Metody dydaktyczne' (sposób prowadzenia zajęć) dla przedmiotu '{subject_name}'.\n"
                 f"Treści programowe: {tresci}\n\n"
-                "Wymień klasyczne i aktywizujące metody w formie krótkich punktów (np. 'wykład informacyjny', 'ćwiczenia laboratoryjne', 'metoda projektowa')."
+                "Wymień klasyczne i aktywizujące metody w formie krótkich punktów (np. 'wykład informacyjny', 'ćwiczenia laboratoryjne')."
             )
+
+    elif field_type == "metody_weryfikacji":
+        sys_prompt = base_system
+        if language == "en":
+            user_prompt = (
+                f"{context_prefix}Propose 'Verification Methods' (how student performance is assessed) for the course '{subject_name}'.\n"
+                f"Objectives: {cel}\n"
+                f"Content: {tresci}\n\n"
+                "List appropriate methods (e.g., written exam, project, oral presentation) as plain text bullet points."
+            )
+        else:
+            user_prompt = (
+                f"{context_prefix}Zaproponuj 'Metody weryfikacji' (sposób sprawdzania efektów uczenia się) dla przedmiotu '{subject_name}'.\n"
+                f"Cele przedmiotu: {cel}\n"
+                f"Treści programowe: {tresci}\n\n"
+                "Wymień odpowiednie metody (np. egzamin pisemny, projekt, prezentacja) w formie krótkich punktów."
+            )
+
+    elif field_type == "tresci":
+        sys_prompt = base_system
+        if language == "en":
+            user_prompt = (
+                f"{context_prefix}Write 'Course Content' (list of topics) for the course '{subject_name}' (field of study: {kierunek}).\n\n"
+                "List the main topics or modules of the course as plain text bullet points."
+            )
+        else:
+            user_prompt = (
+                f"{context_prefix}Napisz 'Treści programowe' (listę zagadnień) dla przedmiotu '{subject_name}' (kierunek: {kierunek}).\n\n"
+                "Wymień główne bloki tematyczne lub punkty programu zajęć w formie krótkich punktów."
+            )
+
+    elif field_type == "nazwa_angielska":
+        sys_prompt = "You are a professional academic translator."
+        if language == "pl":
+            # Translate PL Subject Name to English
+            user_prompt = f"{context_prefix}Translate the Polish academic course name '{subject_name}' into professional English. Return ONLY the translated name as plain text. Do not use quotes."
+        else:
+            # English Mode: nazwa_angielska is where we put the Polish translation
+            user_prompt = f"{context_prefix}Translate the English academic course name '{subject_name}' into professional Polish. Return ONLY the translated name as plain text. Do not use quotes."
     
     elif field_type in ["wiedza", "umiejetnosci", "kompetencje"]:
         # Context specifically passed for outcomes
@@ -124,38 +176,38 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
         )
         if language == "en":
             user_prompt = (
-                f"Write descriptive learning outcomes for the course '{subject_name}' in the category '{category_name}'.\n"
-                f"Course content: {tresci}\n\n"
+                f"{context_prefix}Write descriptive learning outcomes for the course '{subject_name}' in the category '{category_name}'.\n"
+                f"Course content: {tresci}\n"
                 "The following directional learning outcomes were selected as a basis:\n"
                 f"{symbols_text}\n\n"
-                "Rephrase the text based on these directional outcomes so that it sounds specific to this course and is ready for insertion into the syllabus. "
-                "Use appropriate operational verbs (for knowledge: defines, explains; for skills: designs, calculates; for competences: cooperates, recognizes, etc.)."
+                "Rephrase into specific course outcomes. Use plain text only. Use operational verbs (defines, explains, designs, etc.)."
             )
         else:
             user_prompt = (
-                f"Napisz opisowe efekty uczenia się dla przedmiotu '{subject_name}' w kategorii '{category_name}'.\n"
-                f"Treści programowe: {tresci}\n\n"
+                f"{context_prefix}Napisz opisowe efekty uczenia się dla przedmiotu '{subject_name}' w kategorii '{category_name}'.\n"
+                f"Treści programowe: {tresci}\n"
                 "Dla tego przedmiotu wybrano następujące kierunkowe efekty uczenia się jako bazę:\n"
                 f"{symbols_text}\n\n"
-                "Zredaguj tekst na podstawie tych efektów kierunkowych tak, aby brzmiał specyficznie dla tego przedmiotu i był gotowy do wstawienia do sylabusa."
-                "Używaj odpowiednich czasowników operacyjnych (dla wiedzy: definiuje, objaśnia; dla umiejętności: projektuje, oblicza; dla kompetencji: współpracuje, dostrzega itp.)."
+                "Zredaguj tekst specyficzny dla tego przedmiotu. Używaj wyłącznie czystego tekstu. Używaj czasowników operacyjnych (definiuje, objaśnia, projektuje itp.)."
             )
         
     else:
         sys_prompt = base_system
         if language == "en":
-            user_prompt = f"Generate appropriate content for the section '{field_type}' in the syllabus for the course '{subject_name}'."
+            user_prompt = f"{context_prefix}Generate appropriate content for the section '{field_type}' in the syllabus for the course '{subject_name}'. Return only plain text."
         else:
-            user_prompt = f"Wygeneruj odpowiednią treść dla sekcji '{field_type}' w sylabusie przedmiotu '{subject_name}'."
+            user_prompt = f"{context_prefix}Wygeneruj odpowiednią treść dla sekcji '{field_type}' w sylabusie przedmiotu '{subject_name}'. Zwróć wyłącznie czysty tekst."
         
     return sys_prompt, user_prompt
+
 
 def generate_content(
     subject_name: str, 
     field_type: str, 
     context: Dict[str, Any], 
     provider_config: Optional[Dict[str, str]] = None,
-    language: str = "pl"
+    language: str = "pl",
+    field_value: str = ""
 ) -> Dict[str, Any]:
     """
     Calls the LLM API to generate content for a specific syllabus field.
@@ -178,7 +230,7 @@ def generate_content(
             http_client=http_client
         )
         
-        sys_prompt, user_prompt = create_prompt(field_type, subject_name, context, language)
+        sys_prompt, user_prompt = create_prompt(field_type, subject_name, context, language, field_value)
         
         response = client.chat.completions.create(
             model=model,
