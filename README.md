@@ -8,7 +8,7 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 *   **Automatyczna Ekstrakcja:** Rozpoznawanie symboli efektów kierunkowych (W, U, K) oraz danych przedmiotowych (ECTS, semestr, nazwa).
 *   **Wielojęzyczność (PL/EN):** Obsługa szablonów w języku polskim (`template_pl.docx`) i angielskim (`template_en.docx`). AI generuje treści w wybranym języku.
 *   **Interaktywny Edytor:** Formularz React synchronizowany w czasie rzeczywistym z podpowiedziami z dokumentu źródłowego.
-*   **Konfiguracja AI:** Możliwość ustawienia własnego klucza API, endpointu i modelu (domyślnie `bielik_11b`) bezpośrednio w interfejsie. Klucz jest zapamiętywany lokalnie.
+*   **Konfiguracja AI:** Możliwość ustawienia własnego klucza API, endpointu i modelu (domyślnie `bielik_11b` na hostowanym przez PCSS https://pcss.plcloud.pl). **Wymaga ustawienia własnego API Key bezpośrednio w interfejsie. Klucz jest zapamiętywany lokalnie.**
 *   **Eksport do Word:** Generowanie gotowego dokumentu na podstawie szablonów przy użyciu `docxtpl`.
 
 ## Stos Technologiczny
@@ -78,10 +78,6 @@ Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 
 *   [x] **Integracja z LLM (Bielik):** Pełna integracja z modelami językowymi (np. Bielik) do automatycznego generowania propozycji treści dla wszystkich kluczowych pól sylabusa (cel, metody, treści, efekty). Obsługa kontekstu użytkownika i tłumaczeń PL/EN. *Może wymagać drobnego doszlifowania promptów.*
 *   [x] **Wielojęzyczność:** Dynamiczny wybór języka dokumentu i AI bezpośrednio w edytorze.
-
-## TODO / Przyszłe Ulepszenia
-
-*   **Moduł Archiwizacji:** Zapis i edycja wcześniej wygenerowanych sylabusów w chmurze/bazie danych.
 
 ## Licencja
 

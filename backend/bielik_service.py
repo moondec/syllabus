@@ -2,8 +2,10 @@ import os
 import json
 import keyring
 import httpx
+import re
 from openai import OpenAI
 from pydantic import BaseModel
+
 from typing import Optional, Dict, Any
 
 # Default PCSS configuration
@@ -56,25 +58,25 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
     
     if language == "en":
         base_system = (
-            "You are an experienced academic instructor and expert in writing course syllabi. "
-            "Your task is to professionally formulate content for selected sections of a syllabus. "
-            "STRICT REQUIREMENT: Return ONLY clean plain text. Do NOT use any Markdown formatting "
-            "(no bold **, no italics *, no headers #, no markdown-style lists like - or *). "
-            "You MAY use paragraphs and simple text-based lists. "
-            "Do NOT use newlines in the middle of a sentence; only use them to separate paragraphs or list items. "
-            "Write concisely, in an academic style, in English. Return ONLY the generated text, "
-            "without any additional comments, labels, or greetings."
+            "You are a professional academic editor. "
+            "ABSOLUTE BAN on using Markdown formatting. "
+            "DO NOT use characters like asterisks (*), hashes (#), or underscores (_). "
+            "To create lists, use ONLY numbers (e.g., '1.', '2.'). "
+            "DO NOT use dashes (-) or asterisks (*) for bullet points. "
+            "DO NOT break lines inside a paragraph (no hard returns mid-sentence). "
+            "Separate paragraphs with two blank lines. "
+            "Your task is to write concise, academic text, ready to be pasted as plain, unformatted text."
         )
     else:
         base_system = (
-            "Jesteś doświadczonym nauczycielem akademickim i ekspertem od pisania sylabusów (kart przedmiotów). "
-            "Twoim zadaniem jest pomóc w profesjonalnym sformułowaniu treści do wybranych sekcji sylabusa. "
-            "ŚCISŁY WYMÓG: Zwracaj WYŁĄCZNIE czysty tekst. NIE używaj żadnego formatowania Markdown "
-            "(żadnych pogrubień **, kursywy *, nagłówków #, czy list w stylu markdown - lub *). "
-            "MOŻESZ używać akapitów oraz prostych list tekstowych (bez znaków markdown). "
-            "NIE łam linii w środku zdania; używaj znaków nowej linii wyłącznie do oddzielania akapitów lub elementów listy. "
-            "Pisz zwięźle, akademickim stylem, w języku polskim. Zwracaj sam wygenerowany tekst, bez owijania "
-            "go w dodatkowe komentarze, etykiety czy przywitania."
+            "Jesteś profesjonalnym edytorem akademickim. "
+            "ABSOLUTNY ZAKAZ używania języka Markdown. "
+            "NIE WOLNO używać znaków takich jak gwiazdki (*), krzyżyki (#), podkreślniki (_). "
+            "Do tworzenia list używaj WYŁĄCZNIE cyfr (np. '1.', '2.'). "
+            "NIE używaj myślników (-) ani gwiazdek (*) do podpunktów. "
+            "NIE WOLNO łamać tekstu wewnątrz akapitu (np. twardym enterem w połowie zdania). "
+            "Akapity oddzielaj od siebie dwiema pustymi liniami. "
+            "Twoim zadaniem jest sformułowanie tekstu zwięzłego, naukowego, gotowego do wklejenia w systemie jako lity, niesformatowany tekst (plain text)."
         )
     
     context_prefix = ""
@@ -90,13 +92,13 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
             user_prompt = (
                 f"{context_prefix}Write the 'Course Objectives' for the course '{subject_name}' (field of study: {kierunek}, level: {poziom}).\n"
                 f"Course content (topics): {tresci}\n\n"
-                "Formulate 2-4 concise objectives as a simple list."
+                "Formulate 2-4 concise objectives as a numbered list (1., 2.)."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Napisz 'Cel przedmiotu' dla kursu '{subject_name}' (kierunek: {kierunek}, poziom: {poziom}).\n"
                 f"Treści programowe (zagadnienia): {tresci}\n\n"
-                "Sformułuj 2-4 zwięzłe cele w formie prostej listy tekstowej lub punktów."
+                "Sformułuj 2-4 zwięzłe cele w formie numerowanej listy (1., 2.)."
             )
     
     elif field_type == "metody_dydaktyczne":
@@ -105,13 +107,13 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
             user_prompt = (
                 f"{context_prefix}Propose 'Teaching Methods' for the course '{subject_name}'.\n"
                 f"Course content: {tresci}\n\n"
-                "List traditional and activating methods as a simple list."
+                "List traditional and activating methods as a numbered list (1., 2.)."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Zaproponuj 'Metody dydaktyczne' (sposób prowadzenia zajęć) dla przedmiotu '{subject_name}'.\n"
                 f"Treści programowe: {tresci}\n\n"
-                "Wymień klasyczne i aktywizujące metody w formie prostej listy."
+                "Wymień klasyczne i aktywizujące metody w formie numerowanej listy (1., 2.)."
             )
 
     elif field_type == "metody_weryfikacji":
@@ -121,14 +123,14 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
                 f"{context_prefix}Propose 'Verification Methods' (how student performance is assessed) for the course '{subject_name}'.\n"
                 f"Objectives: {cel}\n"
                 f"Content: {tresci}\n\n"
-                "List appropriate methods (e.g., written exam, project) as a simple list."
+                "List appropriate methods (e.g., written exam, project) as a numbered list (1., 2.)."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Zaproponuj 'Metody weryfikacji' (sposób sprawdzania efektów uczenia się) dla przedmiotu '{subject_name}'.\n"
                 f"Cele przedmiotu: {cel}\n"
                 f"Treści programowe: {tresci}\n\n"
-                "Wymień odpowiednie metody w formie prostej listy."
+                "Wymień odpowiednie metody w formie numerowanej listy (1., 2.)."
             )
 
     elif field_type == "tresci":
@@ -136,12 +138,12 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
         if language == "en":
             user_prompt = (
                 f"{context_prefix}Write 'Course Content' (list of topics) for the course '{subject_name}' (field of study: {kierunek}).\n\n"
-                "List the main topics or modules of the course as a simple list."
+                "List the main topics or modules of the course as a numbered list (1., 2.)."
             )
         else:
             user_prompt = (
                 f"{context_prefix}Napisz 'Treści programowe' (listę zagadnień) dla przedmiotu '{subject_name}' (kierunek: {kierunek}).\n\n"
-                "Wymień główne bloki tematyczne lub punkty programu zajęć w formie prostej listy."
+                "Wymień główne bloki tematyczne lub punkty programu zajęć w formie numerowanej listy (1., 2.)."
             )
 
     elif field_type == "nazwa_angielska":
@@ -184,7 +186,7 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
                 f"Course content: {tresci}\n"
                 "The following directional learning outcomes were selected as a basis:\n"
                 f"{symbols_text}\n\n"
-                "Rephrase into specific course outcomes. Use plain plain text. You may use paragraphs or simple lists."
+                "Rephrase into specific course outcomes. Use ONLY plain text. You may use paragraphs or numbered lists."
             )
         else:
             user_prompt = (
@@ -192,7 +194,7 @@ def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], l
                 f"Treści programowe: {tresci}\n"
                 "Dla tego przedmiotu wybrano następujące kierunkowe efekty uczenia się jako bazę:\n"
                 f"{symbols_text}\n\n"
-                "Zredaguj tekst specyficzny dla przedmiotu. Możesz używać akapitów i prostych list tekstowych."
+                "Zredaguj tekst specyficzny dla przedmiotu. Możesz używać akapitów i numerowanych list."
             )
         
     else:
@@ -248,21 +250,61 @@ def generate_content(
         
         generated_text = response.choices[0].message.content.strip()
         
-        # Clean up common wrapping quotes or markdown if the model hallucinated them despite instructions
+        # Clean up common wrapping quotes or markdown block tags if hallucinated
         if generated_text.startswith("```"):
             lines = generated_text.split('\n')
             if lines[0].startswith("```"): lines = lines[1:]
             if lines[-1].startswith("```"): lines = lines[:-1]
             generated_text = "\n".join(lines).strip()
             
-        # Post-processing: remove literal "nowa linia", "new line" etc.
+        # Remove literal "nowa linia", "new line" etc.
         generated_text = generated_text.replace('nowa linia', '').replace('new line', '')
-        # Remove markdown bullet points if they slipped through
-        generated_text = generated_text.replace('\n- ', '\n').replace('\n* ', '\n')
-        if generated_text.startswith('- '): generated_text = generated_text[2:]
-        if generated_text.startswith('* '): generated_text = generated_text[2:]
+
+        # Remove markdown bold/italic tags
+        generated_text = re.sub(r'\*\*(.*?)\*\*', r'\1', generated_text)
+        generated_text = re.sub(r'\*(.*?)\*', r'\1', generated_text)
+        generated_text = re.sub(r'__(.*?)__', r'\1', generated_text)
+        generated_text = re.sub(r'_(.*?)_', r'\1', generated_text)
+        
+        # Remove headers hashes
+        generated_text = re.sub(r'^#+\s*', '', generated_text, flags=re.MULTILINE)
+
+        # Convert remaining dash or asterisk bullet points to simple numbers or strip them 
+        # Since we asked for numbered lists, if they still use `-` or `*`, let's just make sure they look clean
+        # But to completely avoid markdown parsing logic in docxtpl, let's replace leading `- ` with nothing or a dot
+        # A safer approach is to remove leading `- ` or `* ` and rely on the content
+        generated_text = re.sub(r'^[-*]\s+', '', generated_text, flags=re.MULTILINE)
+        
+        # Finally, prevent single newline breaks within sentences (hard wrapping). 
+        # We replace single newlines with spaces, but keep double newlines (paragraphs)
+        # However, we must not join numbered list items. A numbered list usually starts with "1." on a new line.
+        # Let's split by double newline first, then process each block.
+        blocks = generated_text.split('\n\n')
+        processed_blocks = []
+        for block in blocks:
+            # If the block looks like a numbered list (has lines starting with numbers), 
+            # we keep the newlines that start with numbers, but join the rest.
+            lines = block.split('\n')
+            new_lines = []
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                # Starts with number e.g. "1." or "A."
+                if re.match(r'^\d+[\.\)]', line):
+                    new_lines.append(line)
+                else:
+                    if new_lines:
+                        # Append to the previous line with a space
+                        new_lines[-1] += " " + line
+                    else:
+                        new_lines.append(line)
+            processed_blocks.append('\n'.join(new_lines))
+
+        generated_text = "\n\n".join(processed_blocks)
 
         return {"generated_text": generated_text.strip()}
+
         
     except Exception as e:
         error_msg = str(e)

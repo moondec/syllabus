@@ -34,7 +34,8 @@ const fields = [
 
     { key: 'formy_zaliczenia', label: 'Formy zaliczenia', desc: 'Opis egzaminów, zaliczeń itd.', type: 'textarea' },
     { key: 'procOcena', label: 'Udział w ocenie końcowej (%)', desc: 'Procentowy udział poszczególnych form zaliczenia', type: 'text' },
-    { key: 'literatura', label: 'Literatura', desc: 'Literatura podstawowa i uzupełniająca', type: 'textarea' }
+    { key: 'literatura', label: 'Literatura', desc: 'Literatura podstawowa i uzupełniająca', type: 'textarea' },
+    { key: 'legal_basis', label: 'Podstawa prawna', desc: 'Uchwała Senatu / Regulamin', type: 'text' }
 ];
 
 export default function SyllabusForm({ data, onChange, providerConfig, language = 'pl' }) {

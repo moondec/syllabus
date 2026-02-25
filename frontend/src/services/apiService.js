@@ -79,3 +79,39 @@ export const processPlan = async (file, tryb = null) => {
         throw new Error(error.response?.data?.error || 'Błąd podczas przetwarzania planu studiów.');
     }
 };
+
+export const listSyllabuses = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/syllabuses`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.error || 'Błąd podczas pobierania archiwum.');
+    }
+};
+
+export const getSyllabus = async (id) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/syllabuses/${id}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.error || 'Błąd podczas pobierania sylabusa.');
+    }
+};
+
+export const saveSyllabus = async (data) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/syllabuses`, data);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.error || 'Błąd podczas zapisywania sylabusa.');
+    }
+};
+
+export const deleteSyllabus = async (id) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/syllabuses/${id}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.error || 'Błąd podczas usuwania sylabusa.');
+    }
+};

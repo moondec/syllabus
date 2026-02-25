@@ -15,6 +15,15 @@ import bielik_service
 from pydantic import BaseModel
 from typing import Optional, Dict
 
+import models
+import database
+from database import engine, get_db
+from sqlalchemy.orm import Session
+from fastapi import Depends
+
+# Initialize Database
+models.Base.metadata.create_all(bind=engine)
+
 class AIGenerateRequest(BaseModel):
     subject_name: str
     field_type: str
@@ -195,3 +204,70 @@ async def get_all_subjects():
 
     merged_subjects = data_merger.merge_subjects(programs_subjects, plans_subjects)
     return merged_subjects
+
+# --- Archival Module Endpoints ---
+
+@app.get("/api/syllabuses")
+async def list_syllabuses(db: Session = Depends(get_db)):
+    syllabuses = db.query(models.Syllabus).order_by(models.Syllabus.updated_at.desc()).all()
+    # Return minimal info for the list
+    return [
+        {
+            "id": s.id,
+            "subject_name": s.subject_name,
+            "field_of_study": s.field_of_study,
+            "level": s.level,
+            "semester": s.semester,
+            "legal_basis": s.legal_basis,
+            "updated_at": s.updated_at
+        } for s in syllabuses
+    ]
+
+@app.get("/api/syllabuses/{syllabus_id}")
+async def get_syllabus(syllabus_id: int, db: Session = Depends(get_db)):
+    syllabus = db.query(models.Syllabus).filter(models.Syllabus.id == syllabus_id).first()
+    if not syllabus:
+        return JSONResponse(content={"error": "Syllabus not found"}, status_code=404)
+    return syllabus.to_dict()
+
+@app.post("/api/syllabuses")
+async def save_syllabus(data: dict, db: Session = Depends(get_db)):
+    # Create or Update
+    syllabus_id = data.get("id")
+    
+    if syllabus_id and isinstance(syllabus_id, int):
+        # Update existing
+        db_syllabus = db.query(models.Syllabus).filter(models.Syllabus.id == syllabus_id).first()
+        if db_syllabus:
+            db_syllabus.subject_name = data.get("nazwa_przedmiotu")
+            db_syllabus.field_of_study = data.get("kierunek")
+            db_syllabus.level = data.get("poziom")
+            db_syllabus.semester = data.get("semestr")
+            db_syllabus.legal_basis = data.get("legal_basis", db_syllabus.legal_basis)
+            db_syllabus.data = data
+            db.commit()
+            db.refresh(db_syllabus)
+            return db_syllabus.to_dict()
+
+    # Create new
+    new_syllabus = models.Syllabus(
+        subject_name=data.get("nazwa_przedmiotu"),
+        field_of_study=data.get("kierunek"),
+        level=data.get("poziom"),
+        semester=data.get("semestr"),
+        legal_basis=data.get("legal_basis", "Uchwała nr 27/2025 Senatu Uniwersytetu Przyrodniczego w Poznaniu z dnia 26 marca 2025 roku"),
+        data=data
+    )
+    db.add(new_syllabus)
+    db.commit()
+    db.refresh(new_syllabus)
+    return new_syllabus.to_dict()
+
+@app.delete("/api/syllabuses/{syllabus_id}")
+async def delete_syllabus(syllabus_id: int, db: Session = Depends(get_db)):
+    syllabus = db.query(models.Syllabus).filter(models.Syllabus.id == syllabus_id).first()
+    if not syllabus:
+        return JSONResponse(content={"error": "Syllabus not found"}, status_code=404)
+    db.delete(syllabus)
+    db.commit()
+    return {"message": "Syllabus deleted successfully"}

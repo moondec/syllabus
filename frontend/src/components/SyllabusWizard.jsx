@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import FileUploader from './FileUploader';
 import SyllabusForm from './SyllabusForm';
-import { processDocument, generateSyllabus, processPlan } from '../services/apiService';
-import { Loader2, Download, AlertCircle, ChevronRight, List, ArrowLeft, Settings, X, Languages, FileUp } from 'lucide-react';
+import ArchiveView from './ArchiveView';
+import { processDocument, generateSyllabus, processPlan, saveSyllabus as saveSyllabusData } from '../services/apiService';
+import { Loader2, Download, AlertCircle, ChevronRight, List, ArrowLeft, Settings, X, Languages, FileUp, Save, Library } from 'lucide-react';
+
 
 export default function SyllabusWizard() {
     const [step, setStep] = useState(1);
@@ -15,6 +17,9 @@ export default function SyllabusWizard() {
     const [planDataS2, setPlanDataS2] = useState(null); // II stopień - stacjonarny
     const [planDataNS1, setPlanDataNS1] = useState(null); // I stopień - niestacjonarny
     const [planDataNS2, setPlanDataNS2] = useState(null); // II stopień - niestacjonarny
+
+    const [showArchive, setShowArchive] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
 
     const [planLoading, setPlanLoading] = useState({ S1: false, S2: false, NS1: false, NS2: false });
 
@@ -143,6 +148,32 @@ export default function SyllabusWizard() {
         }
     };
 
+    const handleSaveToArchive = async () => {
+        setSaveLoading(true);
+        setError(null);
+        try {
+            const savedItem = await saveSyllabusData(syllabusData);
+            setSyllabusData(prev => ({
+                ...prev,
+                id: savedItem.id,
+                legal_basis: savedItem.legal_basis
+            }));
+            alert('Sylabus został zapisany w archiwum.');
+        } catch (err) {
+            setError(err.message || 'Wystąpił błąd podczas zapisywania w archiwum');
+        } finally {
+            setSaveLoading(false);
+        }
+    };
+
+    const handleLoadFromArchive = (data) => {
+        setSyllabusData(data);
+        setLanguage(data.language || 'pl');
+        setStep(3);
+        setShowArchive(false);
+        setError(null);
+    };
+
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             {/* PROGRESS BAR */}
@@ -157,14 +188,28 @@ export default function SyllabusWizard() {
                     <span className={step >= 4 ? "text-indigo-600" : ""}>4. Zapisz Sylabus</span>
                 </div>
 
-                <button
-                    onClick={() => setShowSettings(true)}
-                    className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
-                    title="Ustawienia modelu AI"
-                >
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">Ustawienia AI</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowArchive(!showArchive)}
+                        className={`flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg border shadow-sm ${showArchive
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'text-slate-500 hover:text-indigo-600 bg-white border-slate-200 hover:border-indigo-200 hover:bg-indigo-50'
+                            }`}
+                        title="Otwórz archiwum zapisanych sylabusów"
+                    >
+                        <Library className="w-4 h-4" />
+                        <span className="hidden sm:inline">Archiwum</span>
+                    </button>
+
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
+                        title="Ustawienia modelu AI"
+                    >
+                        <Settings className="w-4 h-4" />
+                        <span className="hidden sm:inline">Ustawienia AI</span>
+                    </button>
+                </div>
             </div>
 
             {/* AI SETTINGS MODAL */}
@@ -240,7 +285,14 @@ export default function SyllabusWizard() {
                     </div>
                 )}
 
-                {step === 1 && (
+                {showArchive ? (
+                    <ArchiveView
+                        onEditSyllabus={handleLoadFromArchive}
+                        onBack={() => setShowArchive(false)}
+                    />
+                ) : (
+                    <>
+                            {step === 1 && (
                     <div className="max-w-xl mx-auto py-8">
                         <div className="text-center mb-8">
                             <h2 className="text-2xl font-bold text-slate-800 mb-2">Rozpocznij tworzenie sylabusa</h2>
@@ -499,8 +551,17 @@ export default function SyllabusWizard() {
                                     </button>
                                 </div>
                                 <button
+                                                onClick={handleSaveToArchive}
+                                                disabled={saveLoading || loading}
+                                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                                                title="Zapisz postęp w lokalnej bazie danych"
+                                            >
+                                                {saveLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                                <span className="hidden md:inline">Zapisz</span>
+                                            </button>
+                                            <button
                                     onClick={handleGenerateDocument}
-                                    disabled={loading}
+                                                disabled={loading || saveLoading}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
                                 >
                                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
@@ -527,6 +588,8 @@ export default function SyllabusWizard() {
                             Utwórz nowy sylabus
                         </button>
                     </div>
+                )}
+                    </>
                 )}
             </div>
         </div>
