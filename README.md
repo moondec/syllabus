@@ -81,9 +81,6 @@ Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 
 ## TODO / Przyszłe Ulepszenia
 
-*   **Perfekcyjne Mapowanie Dokumentu:** Dalsze udoskonalanie szablonu `template.docx` i stylizacji tabel, aby generowany plik był identyczny z oficjalnym wzorem Uczelni.
-*   **Walidacja Efektów:** Automatyczne sprawdzanie, czy wybrane przez użytkownika symbole efektów pokrywają się z wymogami programu studiów.
-*   **Obsługa Wielu Szablonów:** System wyboru szablonu dla różnych jednostek organizacyjnych.
 *   **Moduł Archiwizacji:** Zapis i edycja wcześniej wygenerowanych sylabusów w chmurze/bazie danych.
 
 ## Licencja
