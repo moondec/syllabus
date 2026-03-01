@@ -175,8 +175,50 @@ def extract_plan_subjects(pages_data, metadata=None):
                     current_semester = _parse_semester_number(row)
                     continue
 
-                # Determine column layout based on table width
-                if num_cols >= 17:
+                # Clean up and compress the row to handle empty joining columns from pdfplumber
+                raw_row = [str(c) if c is not None else "" for c in row]
+                compressed_row = [c.strip() for c in raw_row if c.strip()]
+                num_compressed = len(compressed_row)
+
+                # Determine column layout based on table width or compressed width
+                name_col = None
+                ects_col = None
+                total_col = None
+                wyklad_col = None
+                cwicz_col = None
+                typ_col = None
+                inne_col = None
+                konsult_col = None
+                praca_wlasna_col = None
+                unit_col = None
+                
+                # Check compressed row layout (for "OŚ I stopień" and similar)
+                if num_compressed == 11 and compressed_row[0].split('.')[0].isdigit() and compressed_row[1].isdigit():
+                    # 11-column compressed layout
+                    # Format: Name, ECTS, Total, Wykład, Ćwiczenia, Inne, Konsultacje, Praca własna, Egz/Zal, Typ, Jednostka
+                    name_col = "compressed:0"
+                    ects_col = "compressed:1"
+                    total_col = "compressed:2"
+                    wyklad_col = "compressed:3"
+                    cwicz_col = "compressed:4"
+                    inne_col = "compressed:5"
+                    konsult_col = "compressed:6"
+                    praca_wlasna_col = "compressed:7"
+                    typ_col = "compressed:9"
+                    unit_col = "compressed:10"
+                elif num_compressed == 10 and "fakultet" in compressed_row[0].lower():
+                    # 10-col compressed for facultative blocks (missing some columns like formy_zaliczenia often)
+                     name_col = "compressed:0"
+                     ects_col = "compressed:1"
+                     total_col = "compressed:2"
+                     wyklad_col = "compressed:3"
+                     cwicz_col = "compressed:4"
+                     inne_col = "compressed:5"
+                     konsult_col = "compressed:6"
+                     praca_wlasna_col = "compressed:7"
+                     typ_col = "compressed:8"
+                     unit_col = "compressed:9"
+                elif num_cols >= 17:
                     # 17-column layout (niestacjonarne-style, wider table)
                     name_col = 0
                     ects_col = 1
@@ -215,73 +257,95 @@ def extract_plan_subjects(pages_data, metadata=None):
                         unit_col = 13
                 else:
                     continue  # Unknown format
+                    
+                def get_val(col_idx):
+                    if col_idx is None:
+                        return ""
+                    if isinstance(col_idx, str) and col_idx.startswith("compressed:"):
+                        idx = int(col_idx.split(":")[1])
+                        return compressed_row[idx] if idx < len(compressed_row) else ""
+                    return str(row[col_idx]).strip() if col_idx < len(row) and row[col_idx] else ""
 
                 # Get subject name
-                raw_name = str(row[name_col]).strip() if row[name_col] else ""
+                raw_name = get_val(name_col)
 
-                # Skip empty names, summary rows, pure numbers
-                if not raw_name or _is_summary_row(raw_name):
-                    continue
-                if raw_name.replace(".", "").isdigit():
-                    continue
-
-                # For 14-col layout where col[0] is the number, name comes from col[1]
-                # For rows like ['1.', 'Matematyka C1 / Mathematics C1', '4', ...]
-                if num_cols >= 14 and row[0] and str(row[0]).strip().replace(".", "").isdigit():
-                    raw_name = str(row[1]).strip() if len(row) > 1 and row[1] else raw_name
 
                 # Must have at least ECTS to be a valid subject row
-                ects_val = str(row[ects_col]).strip() if len(row) > ects_col and row[ects_col] else ""
+                ects_val = get_val(ects_col)
                 if not ects_val or not ects_val.isdigit():
                     continue
 
-                name_pl, name_en = _split_name(raw_name)
-
                 # Parse hours
-                total_hours = _safe_int(row[total_col] if len(row) > total_col else None)
-                wyklad_hours = _safe_int(row[wyklad_col] if len(row) > wyklad_col else None)
-                cwicz_hours = _safe_int(row[cwicz_col] if len(row) > cwicz_col else None)
-                inne_hours = _safe_int(row[inne_col] if len(row) > inne_col else None)
-                konsult_hours = _safe_int(row[konsult_col] if len(row) > konsult_col else None)
-                selfwork_hours = _safe_int(row[praca_wlasna_col] if len(row) > praca_wlasna_col else None)
-
-                # Exercise type
-                exercise_type = ""
-                if typ_col is not None and len(row) > typ_col:
-                    exercise_type = _parse_exercise_type(row[typ_col])
-                elif num_cols >= 17 and cwicz_col < len(row):
-                    # In 17-col layout, type is embedded in cwicz value (e.g. "15L")
-                    exercise_type = _parse_exercise_type(row[cwicz_col])
+                total_hours = _safe_int(get_val(total_col))
+                wyklad_hours = _safe_int(get_val(wyklad_col))
+                cwicz_hours = _safe_int(get_val(cwicz_col))
+                inne_hours = _safe_int(get_val(inne_col))
+                konsult_hours = _safe_int(get_val(konsult_col))
+                selfwork_hours = _safe_int(get_val(praca_wlasna_col))
 
                 # Unit
-                unit_val = str(row[unit_col]).strip() if len(row) > unit_col and row[unit_col] else ""
+                unit_val = get_val(unit_col)
 
-                # Build subject dict with appropriate suffix
-                subject = {
-                    "nazwa_przedmiotu": name_pl,
-                    "nazwa_angielska": name_en,
-                    "ects": ects_val,
-                    "semestr": current_semester,
-                    "jednostka": unit_val,
-                }
+                def _get_subject_names(full_name):
+                    """Splits combined subject names into a list of separate subject strings."""
+                    # Use regex to find markers like "1.3.1. ", "2.2A. ", "2. Fakultet"
+                    markers = list(re.finditer(r"(\d+[\.\w]+[\.\s]+)", full_name))
+                    if len(markers) <= 1:
+                        return [full_name]
+                    
+                    # Shared prefix check
+                    prefix = ""
+                    if markers[0].start() > 0:
+                        prefix = full_name[:markers[0].start()].strip()
+                    
+                    results = []
+                    for i in range(len(markers)):
+                        start_idx = markers[i].start()
+                        end_idx = markers[i+1].start() if i+1 < len(markers) else len(full_name)
+                        item = full_name[start_idx:end_idx].strip()
+                        if prefix:
+                            results.append(f"{prefix} {item}".strip())
+                        else:
+                            results.append(item)
+                    return results
 
-                # Map hours to template tags based on study mode
-                if tryb == "NS":
-                    subject["numTNS"] = str(total_hours) if total_hours else ""
-                    subject["numWNS"] = str(wyklad_hours) if wyklad_hours else ""
-                    subject["numCNS"] = str(cwicz_hours) if cwicz_hours else ""
-                    subject["numInNS"] = str(inne_hours) if inne_hours else ""
-                    subject["numKNS"] = str(konsult_hours) if konsult_hours else ""
-                    subject["numPwNS"] = str(selfwork_hours) if selfwork_hours else ""
-                else:
-                    subject["numTS"] = str(total_hours) if total_hours else ""
-                    subject["numWS"] = str(wyklad_hours) if wyklad_hours else ""
-                    subject["numCS"] = str(cwicz_hours) if cwicz_hours else ""
-                    subject["numInS"] = str(inne_hours) if inne_hours else ""
-                    subject["numKS"] = str(konsult_hours) if konsult_hours else ""
-                    subject["numPwS"] = str(selfwork_hours) if selfwork_hours else ""
+                # Get all individual subjects from this row
+                raw_names = _get_subject_names(raw_name)
 
-                subjects.append(subject)
+                for name_entry in raw_names:
+                    if not name_entry or _is_summary_row(name_entry):
+                        continue
+                    if name_entry.replace(".", "").strip().isdigit():
+                        continue
+                    
+                    name_pl, name_en = _split_name(name_entry)
+
+                    # Build subject dict
+                    subject = {
+                        "nazwa_przedmiotu": name_pl,
+                        "nazwa_angielska": name_en,
+                        "ects": ects_val,
+                        "semestr": current_semester,
+                        "jednostka": unit_val,
+                    }
+
+                    # Map hours to template tags
+                    if tryb == "NS":
+                        subject["numTNS"] = str(total_hours) if total_hours else ""
+                        subject["numWNS"] = str(wyklad_hours) if wyklad_hours else ""
+                        subject["numCNS"] = str(cwicz_hours) if cwicz_hours else ""
+                        subject["numInNS"] = str(inne_hours) if inne_hours else ""
+                        subject["numKNS"] = str(konsult_hours) if konsult_hours else ""
+                        subject["numPwNS"] = str(selfwork_hours) if selfwork_hours else ""
+                    else:
+                        subject["numTS"] = str(total_hours) if total_hours else ""
+                        subject["numWS"] = str(wyklad_hours) if wyklad_hours else ""
+                        subject["numCS"] = str(cwicz_hours) if cwicz_hours else ""
+                        subject["numInS"] = str(inne_hours) if inne_hours else ""
+                        subject["numKS"] = str(konsult_hours) if konsult_hours else ""
+                        subject["numPwS"] = str(selfwork_hours) if selfwork_hours else ""
+
+                    subjects.append(subject)
 
     return subjects
 

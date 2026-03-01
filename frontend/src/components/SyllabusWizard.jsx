@@ -69,11 +69,30 @@ export default function SyllabusWizard() {
         // Merge plan data if available
         let merged = { ...subject };
 
+        const cleanSubjectName = (name) => {
+            if (!name) return '';
+            let s = name.trim().toLowerCase();
+            // 1. Remove prefixes like "1. ", "1.2. ", "1.3A. ", "1.2.3. "
+            s = s.replace(/^(?:\d+\.)+(?:\d+[a-z]?\.?)?\s*/, '');
+            // Secondary pass just in case it was "1a. "
+            s = s.replace(/^\d+[a-z]?\.\s*/, '');
+            // 2. Remove "(do wyboru)" variations
+            s = s.replace(/\(do wyboru\)/g, '').replace(/\(\s*do wyboru\s*\)/g, '').replace(/do wyboru/g, '');
+            // 3. Remove "fakultet ..." prefix
+            s = s.replace(/^fakultet\s+[xvi]+\s*/, '');
+            // Clean up again if numbering was after "fakultet"
+            s = s.replace(/^(?:\d+\.)+(?:\d+[a-z]?\.?)?\s*/, '');
+            s = s.replace(/^\d+[a-z]?\.\s*/, '');
+            // 4. Remove trailing spaces and dashes
+            s = s.replace(/[\s\-]+$/, '');
+            return s.trim();
+        };
+
         const mergeFromPlanList = (planList) => {
             if (!planList || !planList.length) return;
-            const subjectName = (subject.nazwa_przedmiotu || '').replace(/^\d+\.\s*/, '').trim().toLowerCase();
+            const subjectName = cleanSubjectName(subject.nazwa_przedmiotu);
             const planMatch = planList.find(p => {
-                const planName = (p.nazwa_przedmiotu || '').trim().toLowerCase();
+                const planName = cleanSubjectName(p.nazwa_przedmiotu);
                 return planName === subjectName || subjectName.includes(planName) || planName.includes(subjectName);
             });
             if (planMatch) {

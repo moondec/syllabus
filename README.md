@@ -78,6 +78,13 @@ Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 
 *   [x] **Integracja z LLM (Bielik):** Pełna integracja z modelami językowymi (np. Bielik) do automatycznego generowania propozycji treści dla wszystkich kluczowych pól sylabusa (cel, metody, treści, efekty). Obsługa kontekstu użytkownika i tłumaczeń PL/EN. *Może wymagać drobnego doszlifowania promptów.*
 *   [x] **Wielojęzyczność:** Dynamiczny wybór języka dokumentu i AI bezpośrednio w edytorze.
+*   [x] **Automatyczne podpowiadanie godzin:** Aplikacja automatycznie podstawi godziny z planu studiów dla przedmiotów, które nie są oznaczone jako "Przedmiot do wyboru 1", "Przedmiot do wyboru 2", "Przedmiot do wyboru 3", itd.
+*   [x] **Automatyczne podpowiadanie efektów:** Aplikacja automatycznie podstawi efekty z programu studiów dla przedmiotów.
+*   [x] **Automatyczne rozpozna przedmioty do wyboru jeśli:** w planie studiów, nazwy dwóch przedmiotów są wymienione **z nazwy** w tej samej komórce tabeli.
+
+## Znane ograniczenia
+
+*   Aplikacja nie potrafi rozpoznać przedmiotów z planu studiów, które są oznaczone jako "do wyboru" np. "Przedmiot do wyboru 2" lub "Przedmiot do wyboru 3". Aplikacja nie podstawi dla tych przedmiotów ich faktycznych nazw, punktów ETCS ani godzin z planu studiów.
 
 ## Licencja
 
