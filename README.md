@@ -80,7 +80,7 @@ Aplikacja będzie dostępna pod adresem: `http://localhost:5173`
 *   [x] **Wielojęzyczność:** Dynamiczny wybór języka dokumentu i AI bezpośrednio w edytorze.
 *   [x] **Automatyczne podpowiadanie godzin:** Aplikacja automatycznie podstawi godziny z planu studiów dla przedmiotów, które nie są oznaczone jako "Przedmiot do wyboru 1", "Przedmiot do wyboru 2", "Przedmiot do wyboru 3", itd.
 *   [x] **Automatyczne podpowiadanie efektów:** Aplikacja automatycznie podstawi efekty z programu studiów dla przedmiotów.
-*   [x] **Automatyczne rozpozna przedmioty do wyboru jeśli:** w planie studiów, nazwy dwóch przedmiotów są wymienione **z nazwy** w tej samej komórce tabeli.
+*   [x] **Automatyczne rozpoznanie przedmiotów do wyboru jeśli:** w planie studiów, nazwy dwóch przedmiotów są wymienione **z nazwy** w tej samej komórce tabeli.
 
 ## Znane ograniczenia
 
