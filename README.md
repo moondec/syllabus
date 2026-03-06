@@ -18,7 +18,7 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 1. **Usprawnione Archiwum (Grupowanie):** Wbudowaliśmy zaawansowany "Przełącznik Grupowania" pozwalający sortować archiwalne sylabusy bezpośrednio według opcji "Wydział" (Katedra) lub według "Kierunków Studiów".
 2. **Bezbłędny interfejs pobierania (Cross-browser):** Wyeliminowano trudny błąd przeglądarki Chrome z gubieniem rozszerzeń `.docx`. Pliki są teraz pobierane niezawodnym łączem przez ukrytą ramkę `iframe` w locie wymuszając nagłówek CORS `Content-Disposition`.
-3. **Pojedynczy Kontener Docker Compose:** Dodano pełne wsparcie dla architektury konteneryzacji - integracja NGINX jako odźwiernego serwującego statyczny frontend Vite i proxy uderzające przez port w backend FastAPI.
+3. **Pojedynczy Kontener Docker Compose:** Dodano pełne wsparcie dla architektury konteneryzacji - Konfiguracja NGINX jako serwera frontonowego (reverse proxy) dla statycznego frontendu tworzonego przez Vite oraz przekierowującego żądania przez określony port do backendu opartego na FastAPI.
 
 ---
 

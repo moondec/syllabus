@@ -20,8 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 COPY template_pl.docx .
 COPY template_en.docx .
-COPY template.docx .
-COPY template_fixed.docx .
 
 # Set working directory to backend to run as intended
 WORKDIR /app/backend
