@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -10,19 +8,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - syllabus_db_data:/app/backend/data
-      # The database is hardcoded as sqlite:///syllabus.db in models.py which creates it in the current dir
-      # So we should map the current dir syllabus.db or adjust the backend code. Let's mount the file explicitly.
-      # Wait, mounting a specific file that might not exist can cause issues where Docker creates a directory instead.
-      # Best practice: use a volume mapping to a directory where the db will be stored.
-      # For now, let's map a directory to where we expect the db.
-      # Wait, I mapped it directly to the backend folder so the db lives there. Let's map a directory instead of a file.
+      # Preserve the SQLite database file
+      - syllabus_db_data:/app/backend/
     
-    # Actually, in database.py the DB is defined as:
-    # SQLALCHEMY_DATABASE_URL = "sqlite:///./syllabus.db"
-    # This creates the DB in whatever the CWD is (which is /app/backend)
-      - syllabus_data:/app/backend/
-
   frontend:
     build:
       context: .
@@ -35,4 +23,4 @@ services:
       - backend
 
 volumes:
-  syllabus_data:
+  syllabus_db_data:
