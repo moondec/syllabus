@@ -21,11 +21,11 @@ COPY backend/ ./backend/
 COPY template_pl.docx .
 COPY template_en.docx .
 
-# Set working directory to backend to run as intended
+# Set working directory to backend
 WORKDIR /app/backend
 
-# Create a volume point for the SQLite database
-VOLUME ["/app/backend/syllabus.db"]
+# Create a directory for the SQLite database to avoid mount conflicts
+RUN mkdir -p /app/backend/data
 
 # Expose port
 EXPOSE 8000

@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Preserve the SQLite database file
-      - syllabus_db_data:/app/backend/
+      # Preserve the SQLite database file in a dedicated directory
+      - syllabus_db_data:/app/backend/data
     
   frontend:
     build:
