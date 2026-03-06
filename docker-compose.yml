@@ -9,7 +9,8 @@ services:
       - "8000:8000"
     volumes:
       # Preserve the SQLite database file in a dedicated directory
-      - syllabus_db_data:/app/backend/data
+  #    - syllabus_db_data:/app/backend/data
+      - ./backend:/app/backend/data
     
   frontend:
     build:
