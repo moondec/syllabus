@@ -36,7 +36,7 @@ docker compose up -d --build
 
 **Dostęp:**
 Kontener NGINX natychmiast opublikuje cały frontend na głównym porcie. Zintegruje go automatycznie w tle z backendem! Aplikacja uruchamia się po wejściu w przeglądarce na adres:
-`http://localhost` (Port 80)
+`http://localhost:8080` (Port 8080)
 
 *Informacja techniczna: Plik konfiguracyjny sam mapuje bazę danych i podmontowuje ją w niewidocznym lokalnie, bezpiecznym wolumenie typu `sqlite_data`. Zapisane sylabusy pozostaną nienaruszone nawet po restartach obrazów Dockera (Dopóki nie wywołasz ręcznie komendy wpisującej destrukcję `docker compose down -v`)*
 
