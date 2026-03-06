@@ -25,12 +25,29 @@ export const generateSyllabus = async (data, format = 'docx') => {
         const response = await axios.post(`${API_BASE_URL}/generate-syllabus`, data);
 
         const downloadUrl = response.data?.download_url;
+        const filename = response.data?.filename || 'sylabus.docx';
+
         if (!downloadUrl) {
             throw new Error(response.data?.error || 'Brak URL do pobrania pliku');
         }
 
-        // Krok 2: Przekieruj przegladarke do endpointu GET (same-origin dzieki proxy)
-        window.location.href = downloadUrl;
+        // Pobieramy plik BEZPOŚREDNIO z backendu (omijamy Vite proxy, który obcina nagłówki)
+        // Chrome wymaga natywnej obsługi Content-Disposition, bez pośrednictwa proxy/JS
+        const directUrl = `http://localhost:8000${downloadUrl}`;
+
+        // Używamy ukrytego iframe - najbardziej niezawodna metoda pobierania we WSZYSTKICH przeglądarkach
+        // Przeglądarka sama czyta Content-Disposition: attachment i zapisuje plik z właściwą nazwą
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = directUrl;
+        document.body.appendChild(iframe);
+
+        // Sprzątanie po 30 sekundach
+        setTimeout(() => {
+            if (iframe.parentNode) {
+                document.body.removeChild(iframe);
+            }
+        }, 30000);
 
         return true;
     } catch (error) {

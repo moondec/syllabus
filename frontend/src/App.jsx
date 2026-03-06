@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FileUp, FileText } from 'lucide-react';
 import SyllabusWizard from './components/SyllabusWizard';
-
+import ErrorBoundary from './components/ErrorBoundary';
 function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-indigo-100 selection:text-indigo-900">
@@ -19,7 +19,9 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <SyllabusWizard />
+        <ErrorBoundary>
+          <SyllabusWizard />
+        </ErrorBoundary>
       </main>
     </div>
   );

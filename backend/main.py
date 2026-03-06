@@ -161,14 +161,21 @@ async def generate_syllabus(data: dict):
 
 @app.get("/api/download/{file_id}/{filename}")
 async def download_file(file_id: str, filename: str):
-    file_info = _generated_files.pop(file_id, None)
+    file_info = _generated_files.get(file_id, None)
     if not file_info or not os.path.exists(file_info["path"]):
         return JSONResponse(content={"error": "File not found or expired"}, status_code=404)
+    
+    # Usuwamy wpis po pobraniu, ale sam plik zostanie usunięty przez OS / restart
+    _generated_files.pop(file_id, None)
     
     return FileResponse(
         path=file_info["path"],
         filename=file_info["filename"],
         media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        headers={
+            "Content-Disposition": f'attachment; filename="{file_info["filename"]}"',
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+        }
     )
 
 @app.get("/api/get-all-subjects")
@@ -210,12 +217,13 @@ async def get_all_subjects():
 @app.get("/api/syllabuses")
 async def list_syllabuses(db: Session = Depends(get_db)):
     syllabuses = db.query(models.Syllabus).order_by(models.Syllabus.updated_at.desc()).all()
-    # Return minimal info for the list
+    # Return minimal info for the list, now including the unit for grouping
     return [
         {
             "id": s.id,
             "subject_name": s.subject_name,
             "field_of_study": s.field_of_study,
+            "unit": s.data.get("jednostka") if s.data and isinstance(s.data, dict) else "Inny",
             "level": s.level,
             "semester": s.semester,
             "legal_basis": s.legal_basis,

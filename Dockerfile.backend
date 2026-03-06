@@ -1,0 +1,36 @@
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies (e.g. for pdfplumber/docx parsers if needed)
+# Added basic build tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libxml2-dev \
+    libxslt-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application files
+COPY backend/ ./backend/
+COPY template_pl.docx .
+COPY template_en.docx .
+COPY template.docx .
+COPY template_fixed.docx .
+
+# Set working directory to backend to run as intended
+WORKDIR /app/backend
+
+# Create a volume point for the SQLite database
+VOLUME ["/app/backend/syllabus.db"]
+
+# Expose port
+EXPOSE 8000
+
+# Command to run application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
