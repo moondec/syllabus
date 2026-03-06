@@ -59,6 +59,38 @@ Jeżeli zainstalowałeś Docker Desktop, ale komenda `docker` nie jest rozpoznaw
 
 ---
 
+## Zarządzanie Kontenerami (Przydatne Komendy) 🛠️
+
+Jeżeli używasz **Sposobu 1 (Docker Compose)**, oto lista najczęstszych operacji:
+
+*   **Zatrzymanie aplikacji:**
+    ```bash
+    docker compose stop
+    ```
+*   **Uruchomienie zatrzymanej aplikacji:**
+    ```bash
+    docker compose start
+    ```
+*   **Restart całej aplikacji:**
+    ```bash
+    docker compose restart
+    ```
+*   **Aktualizacja (zastosowanie zmian w kodzie):**
+    Gdy pobierzesz nową wersję z Gita lub wprowadzisz własne zmiany, przebuduj obrazy:
+    ```bash
+    docker compose up -d --build
+    ```
+*   **Całkowite usunięcie kontenerów (czysty start):**
+    ```bash
+    docker compose down
+    ```
+*   **Usunięcie kontenerów wraz z danymi (UWAGA: Czyści bazę SQLite!):**
+    ```bash
+    docker compose down -v
+    ```
+
+---
+
 ## Uruchomienie Projektu - Sposób 2: Natywnie (Developer / Node.js + Python) 💻
 
 Jeżeli chcesz zainstalować projekt bezpośrednio w swoim środowisku developerskim:
