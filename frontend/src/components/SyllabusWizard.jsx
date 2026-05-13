@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import FileUploader from './FileUploader';
 import SyllabusForm from './SyllabusForm';
 import ArchiveView from './ArchiveView';
@@ -131,8 +131,7 @@ export default function SyllabusWizard() {
         setStep(3);
     };
 
-    const handlePlanUpload = async (e, type) => {
-        const file = e.target.files?.[0];
+    const handlePlanUpload = async (file, type) => {
         if (!file) return;
 
         setPlanLoading(prev => ({ ...prev, [type]: true }));
@@ -616,15 +615,46 @@ export default function SyllabusWizard() {
 }
 
 function PlanUploader({ label, type, data, loading, onUpload, onClear, accentColor }) {
+    const [isDragActive, setIsDragActive] = useState(false);
+    const fileInputRef = useRef(null);
+
     const isEmerald = accentColor === 'emerald';
+    const activeBorderClass = isEmerald ? 'border-emerald-500 bg-emerald-50/60' : 'border-indigo-500 bg-indigo-50/60';
     const bgClass = isEmerald ? 'bg-emerald-50' : 'bg-indigo-50';
     const borderClass = isEmerald ? 'border-emerald-200' : 'border-indigo-200';
     const textClass = isEmerald ? 'text-emerald-800' : 'text-indigo-800';
     const subTextClass = isEmerald ? 'text-emerald-600' : 'text-indigo-600';
-    const iconClass = isEmerald ? 'text-emerald-600' : 'text-indigo-600';
+    const iconClass = isEmerald ? 'text-emerald-500' : 'text-indigo-500';
     const hoverBorderClass = isEmerald ? 'hover:border-emerald-400' : 'hover:border-indigo-400';
-    const hoverBgClass = isEmerald ? 'hover:bg-emerald-50' : 'hover:bg-indigo-50';
+    const hoverBgClass = isEmerald ? 'hover:bg-emerald-50/40' : 'hover:bg-indigo-50/40';
     const clearBtnClass = isEmerald ? 'text-emerald-400 hover:text-emerald-600' : 'text-indigo-400 hover:text-indigo-600';
+
+    const handleDrag = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setIsDragActive(true);
+        } else if (e.type === 'dragleave') {
+            setIsDragActive(false);
+        }
+    }, []);
+
+    const handleDrop = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file && (file.name.endsWith('.pdf') || file.name.endsWith('.docx'))) {
+            onUpload(file, type);
+        }
+    }, [onUpload, type]);
+
+    const handleChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) onUpload(file, type);
+        // Reset input so same file can be re-selected
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
 
     if (loading) {
         return (
@@ -650,10 +680,30 @@ function PlanUploader({ label, type, data, loading, onUpload, onClear, accentCol
     }
 
     return (
-        <label className={`flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 ${hoverBorderClass} ${hoverBgClass} cursor-pointer transition-all`}>
-            <FileUp className="w-4 h-4 text-slate-400" />
-            <span className="text-xs font-medium text-slate-500">Wgraj plan {label}</span>
-            <input type="file" accept=".pdf" className="hidden" onChange={(e) => onUpload(e, type)} />
-        </label>
+        <div
+            className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed cursor-pointer transition-all duration-200 ${
+                isDragActive
+                    ? activeBorderClass
+                    : `border-slate-300 bg-slate-50 ${hoverBorderClass} ${hoverBgClass}`
+            }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+        >
+            <FileUp className={`w-5 h-5 transition-colors ${isDragActive ? iconClass : 'text-slate-400'}`} />
+            <span className={`text-xs font-medium transition-colors ${isDragActive ? (isEmerald ? 'text-emerald-700' : 'text-indigo-700') : 'text-slate-500'}`}>
+                {isDragActive ? 'Upuść plik tutaj' : `Wgraj plan ${label}`}
+            </span>
+            <span className="text-[10px] text-slate-400">lub przeciągnij i upuść</span>
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.docx"
+                className="hidden"
+                onChange={handleChange}
+            />
+        </div>
     );
 }

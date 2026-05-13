@@ -1,48 +1,33 @@
 import os
-import json
 import keyring
 import httpx
 import re
 from openai import OpenAI
-from pydantic import BaseModel
 
 from typing import Optional, Dict, Any
 
 # Default PCSS configuration
 DEFAULT_BASE_URL = "https://llm.hpc.pcss.pl/v1"
 DEFAULT_MODEL = "bielik_11b"
-_cached_api_key = None  # In-memory cache for the session
-
 def get_api_key(provided_key: Optional[str] = None) -> Optional[str]:
     """
     Retrieves the API key. Priorities:
-    1. Check in-memory cache
-    2. Key provided directly from frontend
-    3. Key stored in system keyring
-    4. Key from environment variable PCSS_API_KEY
+    1. Key provided directly from frontend (always takes precedence)
+    2. Key stored in system keyring
+    3. Key from environment variable PCSS_API_KEY
     """
-    global _cached_api_key
-    if _cached_api_key:
-        return _cached_api_key
-
+    # Frontend-provided key always wins — no caching so switching providers works correctly
     if provided_key:
-        _cached_api_key = provided_key
         return provided_key
-        
+
     try:
-        # Try keyring first (service: pcss_llm_app, username: api_key)
         key = keyring.get_password("pcss_llm_app", "api_key")
         if key:
-            _cached_api_key = key
             return key
     except Exception as e:
         print(f"Keyring error: {e}")
-        
-    # Fallback to env var
-    key = os.environ.get("PCSS_API_KEY")
-    if key:
-        _cached_api_key = key
-    return key
+
+    return os.environ.get("PCSS_API_KEY")
 
 def create_prompt(field_type: str, subject_name: str, context: Dict[str, Any], language: str = "pl", field_value: str = "") -> tuple[str, str]:
     """
@@ -223,16 +208,37 @@ def generate_content(
     model = config.get("model", DEFAULT_MODEL).strip() or DEFAULT_MODEL
     api_key = get_api_key(config.get("apiKey", "").strip())
     
+    # When running inside Docker, rewrite localhost → host.docker.internal so the
+    # container can reach LM Studio / Ollama running on the host machine.
+    _local_hosts = ("localhost", "127.0.0.1", "0.0.0.0")
+    _in_docker = os.path.exists("/.dockerenv")
+    if _in_docker and any(h in base_url for h in _local_hosts):
+        for h in _local_hosts:
+            base_url = base_url.replace(h, "host.docker.internal")
+
     if not api_key:
-        return {
-            "error": "Brak klucza API do modelu LLM. Skonfiguruj klucz w ustawieniach na froncie lub w systemowym pęku kluczy jako 'pcss_llm_app' (user 'api_key')."
-        }
+        # Local endpoints (Ollama, LM Studio etc.) don't require a real API key
+        if any(h in base_url for h in (*_local_hosts, "host.docker.internal")):
+            api_key = "local"
+        else:
+            return {
+                "error": "Brak klucza API do modelu LLM. Skonfiguruj klucz w ustawieniach na froncie lub w systemowym pęku kluczy jako 'pcss_llm_app' (user 'api_key')."
+            }
         
     try:
+        # OpenRouter requires HTTP-Referer; pass it (and X-Title) as default headers
+        extra_headers = {}
+        if "openrouter.ai" in base_url:
+            extra_headers = {
+                "HTTP-Referer": "https://syllabus-generator.local",
+                "X-Title": "Syllabus Generator",
+            }
+
         http_client = httpx.Client()
         client = OpenAI(
             api_key=api_key,
             base_url=base_url,
+            default_headers=extra_headers,
             http_client=http_client
         )
         

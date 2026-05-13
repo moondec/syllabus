@@ -31,9 +31,8 @@ export const generateSyllabus = async (data, format = 'docx') => {
             throw new Error(response.data?.error || 'Brak URL do pobrania pliku');
         }
 
-        // Pobieramy plik BEZPOŚREDNIO z backendu (omijamy Vite proxy, który obcina nagłówki)
-        // Chrome wymaga natywnej obsługi Content-Disposition, bez pośrednictwa proxy/JS
-        const directUrl = `http://localhost:8000${downloadUrl}`;
+        // Pobieramy plik ze ścieżki względnej (/api/download/...), która zostanie obsłużona przez Nginx proxy
+        const directUrl = downloadUrl;
 
         // Używamy ukrytego iframe - najbardziej niezawodna metoda pobierania we WSZYSTKICH przeglądarkach
         // Przeglądarka sama czyta Content-Disposition: attachment i zapisuje plik z właściwą nazwą

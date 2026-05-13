@@ -19,6 +19,9 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 1. **Usprawnione Archiwum (Grupowanie):** Wbudowaliśmy zaawansowany "Przełącznik Grupowania" pozwalający sortować archiwalne sylabusy bezpośrednio według opcji "Wydział" (Katedra) lub według "Kierunków Studiów".
 2. **Bezbłędny interfejs pobierania (Cross-browser):** Wyeliminowano trudny błąd przeglądarki Chrome z gubieniem rozszerzeń `.docx`. Pliki są teraz pobierane niezawodnym łączem przez ukrytą ramkę `iframe` w locie wymuszając nagłówek CORS `Content-Disposition`.
 3. **Pojedynczy Kontener Docker Compose:** Dodano pełne wsparcie dla architektury konteneryzacji - Konfiguracja NGINX jako serwera frontonowego (reverse proxy) dla statycznego frontendu tworzonego przez Vite oraz przekierowującego żądania przez określony port do backendu opartego na FastAPI.
+4. **Zaawansowany Parser Planów Studiów II Stopnia:** Dodano obsługę pionowego układu dokumentów PDF (orientacja portrait) z nietypową strukturą 13-kolumnową, co umożliwia bezbłędną ekstrakcję godzin dla przedmiotów na studiach magisterskich.
+5. **Ujednolicony interfejs Drag & Drop:** Przyciski ładowania planów studiów (I i II stopnia, S/NS) we frontendzie wspierają teraz pełne przeciąganie i upuszczanie plików z dynamicznym podglądem stanu (identycznie jak główny uploader programu studiów).
+6. **Wsparcie dla zewnętrznych środowisk sieciowych (macvlan/Cloud):** Pobieranie wygenerowanych dokumentów w pełni współpracuje z wdrożeniami na zewnętrznych serwerach dzięki wykorzystaniu ścieżek względnych w oparciu o Nginx Reverse Proxy.
 
 ---
 

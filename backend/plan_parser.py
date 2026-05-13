@@ -231,10 +231,12 @@ def extract_plan_subjects(pages_data, metadata=None):
                     praca_wlasna_col = 13
                     unit_col = 16
                 elif num_cols >= 14:
-                    # 14-column layout (stacjonarne-style)
+                    # 14-column layout (stacjonarne/niestacjonarne, landscape)
+                    # col0=nr, col1=name, col2=ECTS, col3=total, col4=wykł, col5=ćw,
+                    # col6=typ, col7=inne1, col8=(empty), col9=konsult, col10=praca_własna,
+                    # col11=forma, col12=typ_grupy, col13=jednostka
                     name_col = 1 if (row[0] and str(row[0]).strip().replace(".", "").isdigit()) else 0
                     if name_col == 1:
-                        # Row starts with number: col0=nr, col1=name
                         ects_col = 2
                         total_col = 3
                         wyklad_col = 4
@@ -245,7 +247,6 @@ def extract_plan_subjects(pages_data, metadata=None):
                         praca_wlasna_col = 10
                         unit_col = 13
                     else:
-                        # Row starts with name directly (continuation)
                         ects_col = 2
                         total_col = 3
                         wyklad_col = 4
@@ -255,6 +256,32 @@ def extract_plan_subjects(pages_data, metadata=None):
                         konsult_col = 9
                         praca_wlasna_col = 10
                         unit_col = 13
+                elif num_cols == 13:
+                    # 13-column layout — II stopień portrait (vertical page)
+                    # col0=nr, col1=name, col2=ECTS, col3=total, col4=wykł, col5=ćw,
+                    # col6=typ_ćw, col7=inne1(empty), col8=konsult, col9=praca_własna,
+                    # col10=forma, col11=typ_grupy, col12=jednostka
+                    name_col = 1 if (row[0] and str(row[0]).strip().replace(".", "").isdigit()) else 0
+                    if name_col == 1:
+                        ects_col = 2
+                        total_col = 3
+                        wyklad_col = 4
+                        cwicz_col = 5
+                        typ_col = 6
+                        inne_col = 7
+                        konsult_col = 8
+                        praca_wlasna_col = 9
+                        unit_col = 12
+                    else:
+                        ects_col = 1
+                        total_col = 2
+                        wyklad_col = 3
+                        cwicz_col = 4
+                        typ_col = 5
+                        inne_col = 6
+                        konsult_col = 7
+                        praca_wlasna_col = 8
+                        unit_col = 11
                 else:
                     continue  # Unknown format
                     

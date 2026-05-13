@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       # Preserve the SQLite database file in a dedicated directory
   #    - syllabus_db_data:/app/backend/data
