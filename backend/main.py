@@ -15,6 +15,8 @@ import bielik_service
 from pydantic import BaseModel
 from typing import Optional, Dict
 
+BACKEND_VERSION = "1.1.0"
+
 import models
 import database
 from database import engine, get_db
@@ -41,6 +43,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/api/version")
+async def get_version():
+    return JSONResponse(content={"version": BACKEND_VERSION}, status_code=200)
 
 @app.post("/api/process-document")
 async def process_document(file: UploadFile = File(None), url: Optional[str] = Form(None)):
@@ -105,18 +111,22 @@ async def ai_generate(request: AIGenerateRequest):
 @app.post("/api/process-plan")
 async def process_plan(file: UploadFile = File(...), tryb: str = None):
     """Process a study plan PDF to extract per-subject hour data."""
-    if not file.filename.endswith(".pdf"):
-        return JSONResponse(content={"error": "Plan studiów musi być w formacie PDF."}, status_code=400)
+    if not (file.filename.endswith(".pdf") or file.filename.endswith(".docx")):
+        return JSONResponse(content={"error": "Plan studiów musi być w formacie PDF lub DOCX."}, status_code=400)
 
     file_location = f"temp_plan_{file.filename}"
     try:
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        parsed_data = file_parser.parse_pdf(file_location)
+        if file.filename.endswith(".docx"):
+            parsed_data = file_parser.parse_docx(file_location)
+        else:
+            parsed_data = file_parser.parse_pdf(file_location)
+            
         if not parsed_data or parsed_data.get("error"):
             return JSONResponse(
-                content={"error": parsed_data.get("error") if parsed_data else "Nie udało się sparsować pliku PDF."},
+                content={"error": parsed_data.get("error") if parsed_data else "Nie udało się sparsować pliku."},
                 status_code=500
             )
 
@@ -203,10 +213,15 @@ async def get_all_subjects():
     if os.path.exists(plans_path):
         for filename in os.listdir(plans_path):
             file_path = os.path.join(plans_path, filename)
-            if filename.endswith(".pdf"):
-                parsed_data = file_parser.parse_pdf(file_path)
+            if filename.endswith(".pdf") or filename.endswith(".docx"):
+                file_path = os.path.join(plans_path, filename)
+                if filename.endswith(".docx"):
+                    parsed_data = file_parser.parse_docx(file_path)
+                else:
+                    parsed_data = file_parser.parse_pdf(file_path)
+                    
                 if parsed_data and not parsed_data.get("error"):
-                    subjects = plan_extractor.extract_data_from_plan_pdf(parsed_data.get("tables"))
+                    subjects = plan_parser.extract_full_plan(parsed_data).get("subjects", [])
                     plans_subjects.extend(subjects)
 
     merged_subjects = data_merger.merge_subjects(programs_subjects, plans_subjects)

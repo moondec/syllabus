@@ -382,7 +382,9 @@ def extract_full_plan(parsed_pdf, override_tryb=None):
     Main entry point: takes the output of file_parser.parse_pdf() and returns
     a dict with metadata and subjects.
     """
-    pages = parsed_pdf.get("pages", [])
+    pages = parsed_pdf.get("pages")
+    if pages is None:
+        pages = [{"text": parsed_pdf.get("content", ""), "tables": parsed_pdf.get("tables", [])}]
     text = parsed_pdf.get("content", "")
 
     metadata = extract_plan_metadata(text)
