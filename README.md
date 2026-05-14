@@ -14,7 +14,15 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
-## Nowości w najnowszej wersji v1.0.0
+## Nowości w wersji v1.1.1
+
+1. **Pełna obsługa planów studiów w formacie `.docx`:** Dodano natywne wsparcie dla plików MS Word zawierających plany studiów (I i II stopnia), uwzględniając nowe mapowanie tabel 11-kolumnowych. Pozwala to uniknąć błędów nieczytelności lub rozstrzelonych liter powstających podczas ich konwersji do PDF.
+2. **Zaawansowane parsowanie wielostronicowych programów studiów:** Usprawniono maszynę stanów detekcji tabel przedmiotowych w plikach PDF (usunięcie słowa `"symbol"` z listy wyjątków przerywających ekstrakcję). Pozwala to na pełne, bezbłędne odczytanie wszystkich przedmiotów dla obu poziomów studiów (np. 111 przedmiotów na kierunku Ekonomia) zawartych w jednym pliku źródłowym bez przedwczesnego ucinania listy na skutek wzmianek o symbolach w treściach programowych.
+3. **Wizualizacja wersji oprogramowania w czasie rzeczywistym:** Dodano nowy endpoint `/api/version` na backendzie oraz dynamiczną stopkę informacyjną w interfejsie React, informującą na bieżąco o załadowanych kompilacjach systemu.
+
+---
+
+## Nowości w wersji v1.0.0
 
 1. **Usprawnione Archiwum (Grupowanie):** Wbudowaliśmy zaawansowany "Przełącznik Grupowania" pozwalający sortować archiwalne sylabusy bezpośrednio według opcji "Wydział" (Katedra) lub według "Kierunków Studiów".
 2. **Bezbłędny interfejs pobierania (Cross-browser):** Wyeliminowano trudny błąd przeglądarki Chrome z gubieniem rozszerzeń `.docx`. Pliki są teraz pobierane niezawodnym łączem przez ukrytą ramkę `iframe` w locie wymuszając nagłówek CORS `Content-Disposition`.
