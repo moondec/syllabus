@@ -324,7 +324,7 @@ def extract_data_from_docx_v2(tables, text, pages=None):
             # Jeśli przechodzimy do nowej tabeli (row_idx == 0),
             # musimy sprawdzić, czy nie jest to przypadkiem "tabela innego typu"
             if row_idx == 0 and extracting:
-                stop_words = ["symbol", "sposoby weryfikacji", "rozliczenie godzin", "kierunkowe efekty uczenia", "kryteria oceny"]
+                stop_words = ["sposoby weryfikacji", "rozliczenie godzin", "kierunkowe efekty uczenia", "kryteria oceny"]
                 if any(sw in header_text for sw in stop_words):
                     extracting = False
                     continue
