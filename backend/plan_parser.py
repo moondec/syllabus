@@ -282,6 +282,18 @@ def extract_plan_subjects(pages_data, metadata=None):
                         konsult_col = 7
                         praca_wlasna_col = 8
                         unit_col = 11
+                elif num_cols == 11:
+                    # 11-column layout directly from DOCX tables
+                    name_col = 0
+                    ects_col = 1
+                    total_col = 2
+                    wyklad_col = 3
+                    cwicz_col = 4
+                    inne_col = 5
+                    konsult_col = 6
+                    praca_wlasna_col = 7
+                    typ_col = 8
+                    unit_col = 10
                 else:
                     continue  # Unknown format
                     
