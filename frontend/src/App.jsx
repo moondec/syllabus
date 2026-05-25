@@ -4,7 +4,7 @@ import axios from 'axios';
 import SyllabusWizard from './components/SyllabusWizard';
 import ErrorBoundary from './components/ErrorBoundary';
 
-const FRONTEND_VERSION = "1.1.0";
+const FRONTEND_VERSION = "1.2.0";
 
 function App() {
   const [backendVersion, setBackendVersion] = useState('');
@@ -43,9 +43,20 @@ function App() {
       </main>
 
       <footer className="py-4 text-center text-xs text-slate-400 bg-white border-t border-slate-200">
-        <div className="flex justify-center gap-4">
-          <span>Frontend: v{FRONTEND_VERSION}</span>
-          <span>Backend: {backendVersion ? `v${backendVersion}` : 'łączenie...'}</span>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6">
+          <div className="flex gap-4">
+            <span>Frontend: v{FRONTEND_VERSION}</span>
+            <span>Backend: {backendVersion ? `v${backendVersion}` : 'łączenie...'}</span>
+          </div>
+          <span className="hidden sm:inline text-slate-300">|</span>
+          <a 
+            href="https://github.com/moondec/syllabus/blob/main/README.md" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-indigo-600 hover:text-indigo-800 transition-colors hover:underline flex items-center gap-1 font-medium"
+          >
+            Dokumentacja projektu (README)
+          </a>
         </div>
       </footer>
     </div>

@@ -19,3 +19,4 @@ uvicorn2.log
 test_output.docx
 *.png
 !syllabus_example.png
+ssl/

@@ -14,6 +14,16 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
+## Nowości w wersji v1.2.0
+
+1. **Wsparcie dla SSL/TLS (HTTPS)**: Dodano obsługę bezpiecznego szyfrowania SSL na poziomie Nginx w kontenerze frontendowym. Zaimplementowano protokoły TLS 1.2 oraz TLS 1.3 z nowoczesnymi szyframi i HSTS. Ruch HTTP (port 80) jest automatycznie przekierowywany na HTTPS (port 443).
+2. **Dynamiczny odnośnik do dokumentacji**: Dodano bezpośredni link do dokumentacji projektu w stopce aplikacji React.
+3. **Bezpieczne klucze**: Wygenerowano klucz prywatny oraz CSR w katalogu `ssl/` (automatycznie ignorowane przez gita za pomocą `.gitignore`).
+
+Pełna lista zmian dostępna jest w pliku [CHANGELOG.md](file:///Users/marekurbaniak/Documents/Cursor/syllabus/CHANGELOG.md).
+
+---
+
 ## Nowości w wersji v1.1.1
 
 1. **Pełna obsługa planów studiów w formacie `.docx`:** Dodano natywne wsparcie dla plików MS Word zawierających plany studiów (I i II stopnia), uwzględniając nowe mapowanie tabel 11-kolumnowych. Pozwala to uniknąć błędów nieczytelności lub rozstrzelonych liter powstających podczas ich konwersji do PDF.
@@ -46,8 +56,14 @@ docker compose up -d --build
 ```
 
 **Dostęp:**
-Kontener NGINX natychmiast opublikuje cały frontend na głównym porcie. Zintegruje go automatycznie w tle z backendem! Aplikacja uruchamia się po wejściu w przeglądarce na adres:
-`http://localhost:8080` (Port 8080)
+Kontener NGINX opublikuje cały frontend na standardowych portach HTTP (`80`) i HTTPS (`443`). Po wdrożeniu certyfikatu SSL aplikacja uruchamia się po wejściu w przeglądarce na adres:
+`https://syllabus.up.poznan.pl` (z automatycznym przekierowaniem z portu 80).
+
+**Konfiguracja certyfikatów SSL:**
+Przed uruchomieniem aplikacji w wersji SSL z Docker Compose:
+1. Przekaż plik `ssl/syllabus.csr` administratorowi sieci w celu podpisania.
+2. Zapisz otrzymany certyfikat w lokalnym katalogu jako `ssl/fullchain.pem`.
+3. Uruchom kontener poleceniem `docker compose up -d --build`.
 
 *Informacja techniczna: Plik konfiguracyjny sam mapuje bazę danych i podmontowuje ją w niewidocznym lokalnie, bezpiecznym wolumenie typu `sqlite_data`. Zapisane sylabusy pozostaną nienaruszone nawet po restartach obrazów Dockera (Dopóki nie wywołasz ręcznie komendy wpisującej destrukcję `docker compose down -v`)*
 
