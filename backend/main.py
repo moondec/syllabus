@@ -15,7 +15,7 @@ import bielik_service
 from pydantic import BaseModel
 from typing import Optional, Dict
 
-BACKEND_VERSION = "1.2.0"
+BACKEND_VERSION = "1.2.1"
 
 import models
 import database
@@ -129,8 +129,9 @@ async def process_plan(file: UploadFile = File(...), tryb: str = None):
                 content={"error": parsed_data.get("error") if parsed_data else "Nie udało się sparsować pliku."},
                 status_code=500
             )
-
-        result = plan_parser.extract_full_plan(parsed_data, override_tryb=tryb)
+        # Pass file_path for PDFs to enable adaptive reparsing if initial parse yields few subjects
+        pdf_path = file_location if file.filename.endswith(".pdf") else None
+        result = plan_parser.extract_full_plan(parsed_data, override_tryb=tryb, file_path=pdf_path)
         return JSONResponse(content=result, status_code=200)
     finally:
         if os.path.exists(file_location):
@@ -221,7 +222,8 @@ async def get_all_subjects():
                     parsed_data = file_parser.parse_pdf(file_path)
                     
                 if parsed_data and not parsed_data.get("error"):
-                    subjects = plan_parser.extract_full_plan(parsed_data).get("subjects", [])
+                    pdf_path = file_path if filename.endswith(".pdf") else None
+                    subjects = plan_parser.extract_full_plan(parsed_data, file_path=pdf_path).get("subjects", [])
                     plans_subjects.extend(subjects)
 
     merged_subjects = data_merger.merge_subjects(programs_subjects, plans_subjects)

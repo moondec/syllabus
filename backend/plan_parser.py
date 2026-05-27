@@ -1,4 +1,10 @@
 import re
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Minimum number of valid subjects to consider a parse successful
+MIN_SUBJECTS_THRESHOLD = 10
 
 
 def extract_plan_metadata(text):
@@ -128,6 +134,80 @@ def _split_name(raw_name):
         parts = name.split(" / ", 1)
         return parts[0].strip(), parts[1].strip()
     return name, ""
+
+
+def _auto_detect_columns(row, compressed_row):
+    """Heuristic auto-detection of column roles based on cell content.
+    
+    Tries to identify Name, ECTS, Total, Wykład, Ćwiczenia, Inne,
+    Konsultacje, PracaWłasna, and Jednostka columns by analyzing
+    what each cell contains.
+    
+    Returns a dict of column assignments or None if detection fails.
+    Uses the raw row (not compressed) for column indices.
+    """
+    if len(compressed_row) < 5:
+        return None
+    
+    # Strategy: find the first cell with letters (name), then scan
+    # subsequent cells for numeric patterns
+    name_idx = None
+    for i, cell in enumerate(row):
+        val = str(cell).strip() if cell else ""
+        # Name: has letters and is reasonably long, or is a numbered item like "1. Name"
+        if re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{2,}', val) and len(val) > 3:
+            name_idx = i
+            break
+    
+    if name_idx is None:
+        return None
+    
+    # Scan cells after name for numeric values
+    numeric_cols = []  # list of (col_index, int_value)
+    text_cols = []     # list of (col_index, text_value) — for unit at the end
+    
+    for i in range(name_idx + 1, len(row)):
+        val = str(row[i]).strip() if row[i] else ""
+        digits = re.sub(r'[^0-9]', '', val)
+        if digits and digits.isdigit():
+            numeric_cols.append((i, int(digits)))
+        elif val and re.search(r'[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]', val):
+            text_cols.append((i, val))
+    
+    if len(numeric_cols) < 2:
+        return None
+    
+    # First numeric should be ECTS (1-30), second should be Total hours
+    ects_idx, ects_val = numeric_cols[0]
+    if not (1 <= ects_val <= 30):
+        return None
+    
+    total_idx = numeric_cols[1][0] if len(numeric_cols) > 1 else None
+    
+    # Remaining numeric columns: wykład, ćwiczenia, inne, konsultacje, praca_własna
+    hour_cols = numeric_cols[2:]  # skip ECTS and Total
+    
+    wyklad_idx = hour_cols[0][0] if len(hour_cols) > 0 else None
+    cwicz_idx = hour_cols[1][0] if len(hour_cols) > 1 else None
+    inne_idx = hour_cols[2][0] if len(hour_cols) > 2 else None
+    konsult_idx = hour_cols[3][0] if len(hour_cols) > 3 else None
+    praca_wlasna_idx = hour_cols[4][0] if len(hour_cols) > 4 else None
+    
+    # Unit: last text column (typically department/institute)
+    unit_idx = text_cols[-1][0] if text_cols else None
+    
+    return {
+        "name_col": name_idx,
+        "ects_col": ects_idx,
+        "total_col": total_idx,
+        "wyklad_col": wyklad_idx,
+        "cwicz_col": cwicz_idx,
+        "inne_col": inne_idx,
+        "konsult_col": konsult_idx,
+        "praca_wlasna_col": praca_wlasna_idx,
+        "unit_col": unit_idx,
+        "typ_col": None,
+    }
 
 
 def extract_plan_subjects(pages_data, metadata=None):
@@ -294,8 +374,36 @@ def extract_plan_subjects(pages_data, metadata=None):
                     praca_wlasna_col = 7
                     typ_col = 8
                     unit_col = 10
+                elif num_cols == 10:
+                    # 10-column layout (e.g. English-language plans like Geoinformation)
+                    # col0=Name, col1=ECTS, col2=Total, col3=Lectures, col4=PractClasses,
+                    # col5=Others, col6=ContactHours, col7=ESW/SelfWork, col8=Assessment, col9=Unit
+                    name_col = 0
+                    ects_col = 1
+                    total_col = 2
+                    wyklad_col = 3
+                    cwicz_col = 4
+                    inne_col = 5
+                    konsult_col = 6
+                    praca_wlasna_col = 7
+                    typ_col = None
+                    unit_col = 9
                 else:
-                    continue  # Unknown format
+                    # Unknown column count — try auto-detection based on content
+                    detected = _auto_detect_columns(raw_row, compressed_row)
+                    if detected:
+                        name_col = detected["name_col"]
+                        ects_col = detected["ects_col"]
+                        total_col = detected["total_col"]
+                        wyklad_col = detected["wyklad_col"]
+                        cwicz_col = detected["cwicz_col"]
+                        inne_col = detected["inne_col"]
+                        konsult_col = detected["konsult_col"]
+                        praca_wlasna_col = detected["praca_wlasna_col"]
+                        unit_col = detected["unit_col"]
+                        typ_col = detected["typ_col"]
+                    else:
+                        continue  # Truly unrecognizable row
                     
                 def get_val(col_idx):
                     if col_idx is None:
@@ -389,10 +497,15 @@ def extract_plan_subjects(pages_data, metadata=None):
     return subjects
 
 
-def extract_full_plan(parsed_pdf, override_tryb=None):
+def extract_full_plan(parsed_pdf, override_tryb=None, file_path=None):
     """
     Main entry point: takes the output of file_parser.parse_pdf() and returns
     a dict with metadata and subjects.
+    
+    If file_path is provided and the initial parse yields fewer than
+    MIN_SUBJECTS_THRESHOLD subjects, the PDF will be re-parsed with
+    adjusted pdfplumber settings (snap_tolerance=6) which merges
+    narrow phantom columns, normalizing diverse layouts to ~11 cols.
     """
     pages = parsed_pdf.get("pages")
     if pages is None:
@@ -402,8 +515,54 @@ def extract_full_plan(parsed_pdf, override_tryb=None):
     metadata = extract_plan_metadata(text)
     if override_tryb:
         metadata["override_tryb"] = override_tryb
-        
+
+    # Phase 1: try with default-parsed data
     subjects = extract_plan_subjects(pages, metadata)
+    
+    # Phase 2: if too few subjects found and we have a file path, try adaptive reparsing
+    if len(subjects) < MIN_SUBJECTS_THRESHOLD and file_path:
+        import file_parser
+        
+        adaptive_settings = [
+            # snap_tolerance=6 merges narrow phantom columns (17→11, 33→11)
+            {"snap_x_tolerance": 6, "snap_y_tolerance": 6},
+            # Higher snap for very noisy PDFs
+            {"snap_x_tolerance": 10, "snap_y_tolerance": 10},
+            # Even more aggressive merging
+            {"snap_x_tolerance": 15, "snap_y_tolerance": 15},
+        ]
+        
+        best_subjects = subjects
+        
+        for settings in adaptive_settings:
+            try:
+                reparsed = file_parser.parse_pdf_with_settings(file_path, table_settings=settings)
+                if reparsed.get("error"):
+                    continue
+                
+                reparsed_pages = reparsed.get("pages")
+                if reparsed_pages is None:
+                    reparsed_pages = [{"text": reparsed.get("content", ""), "tables": reparsed.get("tables", [])}]
+                
+                candidate = extract_plan_subjects(reparsed_pages, metadata)
+                
+                logger.info(
+                    f"Adaptive reparse with {settings}: found {len(candidate)} subjects "
+                    f"(previous best: {len(best_subjects)})"
+                )
+                
+                if len(candidate) > len(best_subjects):
+                    best_subjects = candidate
+                
+                # Early stop if we found enough subjects
+                if len(best_subjects) >= MIN_SUBJECTS_THRESHOLD:
+                    break
+                    
+            except Exception as e:
+                logger.warning(f"Adaptive reparse failed with {settings}: {e}")
+                continue
+        
+        subjects = best_subjects
 
     return {
         "metadata": metadata,

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-05-27
+
+### Added
+- **Adaptacyjny parser PDF**: Wprowadzono inteligentny mechanizm dopasowywania kolumn w planach studiów PDF w celu uniknięcia utraty przedmiotów.
+- **Wsparcie dla layoutów 10-kolumnowych**: Obsługa planów w języku angielskim (np. kierunek Geoinformation) zawierających 10 kolumn.
+- **Uniwersalna heurystyka detekcji (`_auto_detect_columns`)**: System samodzielnie analizuje nietypowe liczby kolumn (zastępując pomijanie wierszy w parserze).
+- **Kaskadowe re-parsowanie PDF (Adaptive Tolerance Cascade)**: Automatyczne ponowne parsowanie dokumentu z dynamicznie rosnącą tolerancją tolerancji łączenia kolumn (`snap_tolerance`: 6, 10, 15) przy niskiej liczbie wykrytych przedmiotów.
+- **Early stopping w kaskadzie**: Zatrzymanie prób re-parsowania po osiągnięciu progu 10 pomyślnie wczytanych przedmiotów w celu zachowania optymalnego parsowania pozostałych części pliku.
+
+### Changed
+- **Wersja Aplikacji**: Podniesiono wersję frontendu i backendu do `v1.2.1`.
+- **Integracja API**: Przekazano ścieżkę fizyczną pliku `file_path` z API backendu do parsera, aby umożliwić re-parsowanie z nowymi parametrami tolerancji.
+
+---
+
 ## [1.2.0] - 2026-05-25
 
 ### Added

@@ -34,6 +34,17 @@ def parse_docx(file_path: str):
 
 def parse_pdf(file_path: str):
     """Parses a .pdf file and extracts text and tables."""
+    return parse_pdf_with_settings(file_path, table_settings=None)
+
+
+def parse_pdf_with_settings(file_path: str, table_settings: dict = None):
+    """Parses a .pdf file with optional custom pdfplumber table_settings.
+    
+    Args:
+        file_path: Path to the PDF file.
+        table_settings: Optional dict of pdfplumber table extraction settings,
+                        e.g. {"snap_x_tolerance": 6, "snap_y_tolerance": 6}
+    """
     try:
         with pdfplumber.open(file_path) as pdf:
             full_text = []
@@ -41,7 +52,10 @@ def parse_pdf(file_path: str):
             pages_data = []
             for page in pdf.pages:
                 text = page.extract_text()
-                page_tables = page.extract_tables()
+                if table_settings:
+                    page_tables = page.extract_tables(table_settings=table_settings)
+                else:
+                    page_tables = page.extract_tables()
                 
                 if text:
                     full_text.append(text)
@@ -61,3 +75,4 @@ def parse_pdf(file_path: str):
             }
     except Exception as e:
         return {"error": str(e)}
+

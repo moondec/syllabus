@@ -14,6 +14,14 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
+## Nowości w wersji v1.2.1
+
+1. **Adaptacyjny parser PDF (Automatyczna detekcja kolumn)**: Wprowadzono zaawansowaną heurystykę auto-detekcji kolumn (`_auto_detect_columns`), która eliminuje problem pomijania wierszy w nietypowych tabelach PDF.
+2. **Kaskadowe re-parsowanie (snap_tolerance cascade)**: W przypadku wykrycia małej liczby przedmiotów (< 10), parser automatycznie powtarza analizę z różnymi poziomami tolerancji łączenia kolumn (6, 10, 15), aby scalić sztuczne, nałożone na siebie kolumny.
+3. **Obsługa układu 10-kolumnowego**: Dodano natywne wsparcie dla 10-kolumnowych planów studiów (np. anglojęzycznych planów typu Geoinformation), co pozwoliło na pełne wczytanie brakujących przedmiotów.
+
+---
+
 ## Nowości w wersji v1.2.0
 
 1. **Wsparcie dla SSL/TLS (HTTPS)**: Dodano obsługę bezpiecznego szyfrowania SSL na poziomie Nginx w kontenerze frontendowym. Zaimplementowano protokoły TLS 1.2 oraz TLS 1.3 z nowoczesnymi szyframi i HSTS. Ruch HTTP (port 80) jest automatycznie przekierowywany na HTTPS (port 443).

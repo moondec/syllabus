@@ -4,7 +4,7 @@ import axios from 'axios';
 import SyllabusWizard from './components/SyllabusWizard';
 import ErrorBoundary from './components/ErrorBoundary';
 
-const FRONTEND_VERSION = "1.2.0";
+const FRONTEND_VERSION = "1.2.1";
 
 function App() {
   const [backendVersion, setBackendVersion] = useState('');
