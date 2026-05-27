@@ -50,7 +50,7 @@ function App() {
           </div>
           <span className="hidden sm:inline text-slate-300">|</span>
           <a 
-            href="https://github.com/moondec/syllabus/blob/main/README.md" 
+            href="/README.md" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-indigo-600 hover:text-indigo-800 transition-colors hover:underline flex items-center gap-1 font-medium"

@@ -9,6 +9,7 @@ RUN npm install
 
 # Copy application files and build
 COPY frontend/ ./
+COPY README.md ./public/
 RUN npm run build
 
 # Stage 2: Serve the application with Nginx

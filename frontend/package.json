@@ -4,8 +4,8 @@
   "version": "1.1.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "cp ../README.md public/ 2>/dev/null || true && vite",
+    "build": "cp ../README.md public/ 2>/dev/null || true && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
