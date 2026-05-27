@@ -14,6 +14,13 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
+## Nowości w wersji v1.2.2
+
+1. **Obsługa planów z numeracją (Architektura Krajobrazu)**: Wprowadzono dynamiczną detekcję obecności liczby porządkowej (Lp.) w 11-kolumnowych tabelach PDF, zapobiegając przesunięciom kolumn i gubieniu przedmiotów.
+2. **Sumowanie godzin z plusami**: Zintegrowano nową funkcję sumującą w `_safe_int`, która poprawnie interpretuje i sumuje godziny z oznaczeniami typu `30+10T` zamiast ich konkatenowania.
+
+---
+
 ## Nowości w wersji v1.2.1
 
 1. **Adaptacyjny parser PDF (Automatyczna detekcja kolumn)**: Wprowadzono zaawansowaną heurystykę auto-detekcji kolumn (`_auto_detect_columns`), która eliminuje problem pomijania wierszy w nietypowych tabelach PDF.

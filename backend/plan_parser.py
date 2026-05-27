@@ -103,6 +103,9 @@ def _safe_int(val):
     val = str(val).strip()
     if not val:
         return 0
+    if '+' in val:
+        parts = val.split('+')
+        return sum(_safe_int(p) for p in parts)
     # Remove letter suffixes: "30A" -> "30", "15L" -> "15", "12P" -> "12"
     digits = re.sub(r"[^0-9]", "", val)
     return int(digits) if digits else 0
@@ -363,17 +366,39 @@ def extract_plan_subjects(pages_data, metadata=None):
                         praca_wlasna_col = 8
                         unit_col = 11
                 elif num_cols == 11:
-                    # 11-column layout directly from DOCX tables
-                    name_col = 0
-                    ects_col = 1
-                    total_col = 2
-                    wyklad_col = 3
-                    cwicz_col = 4
-                    inne_col = 5
-                    konsult_col = 6
-                    praca_wlasna_col = 7
-                    typ_col = 8
-                    unit_col = 10
+                    # 11-column layout (can be DOCX direct or PDF-derived with a row number column)
+                    is_numbered = False
+                    first_cell = str(row[0]).strip().replace(".", "")
+                    second_cell = str(row[1]).strip()
+                    third_cell = str(row[2]).strip()
+                    if first_cell.isdigit() and not second_cell.isdigit() and third_cell.isdigit():
+                        is_numbered = True
+
+                    if is_numbered:
+                        # col0=nr, col1=Name, col2=ECTS, col3=Total, col4=Lectures, col5=Classes,
+                        # col6=Others, col7=SelfWork, col8=Assessment, col9=GroupType, col10=Unit
+                        name_col = 1
+                        ects_col = 2
+                        total_col = 3
+                        wyklad_col = 4
+                        cwicz_col = 5
+                        inne_col = 6
+                        konsult_col = None
+                        praca_wlasna_col = 7
+                        typ_col = 8
+                        unit_col = 10
+                    else:
+                        # DOCX style (no row number)
+                        name_col = 0
+                        ects_col = 1
+                        total_col = 2
+                        wyklad_col = 3
+                        cwicz_col = 4
+                        inne_col = 5
+                        konsult_col = 6
+                        praca_wlasna_col = 7
+                        typ_col = 8
+                        unit_col = 10
                 elif num_cols == 10:
                     # 10-column layout (e.g. English-language plans like Geoinformation)
                     # col0=Name, col1=ECTS, col2=Total, col3=Lectures, col4=PractClasses,

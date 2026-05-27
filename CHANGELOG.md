@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-05-27
+
+### Fixed
+- **Poprawki parsowania planów Architektury Krajobrazu**:
+  - Wprowadzono dynamiczną detekcję kolumny z liczbą porządkową (Lp.) w układach 11-kolumnowych planów PDF, zapobiegając błędnemu przesunięciu mapowania kolumn i pomijaniu przedmiotów.
+  - Usprawniono funkcję `_safe_int`, dodając obsługę wartości godzinowych ze znakiem plus (np. `"30+10T"`), które są teraz rozbijane i sumowane zamiast błędnego łączenia w jedną dużą liczbę (np. `"305"`).
+
+### Changed
+- **Wersja Aplikacji**: Podniesiono wersję frontendu i backendu do `v1.2.2`.
+
+---
+
 ## [1.2.1] - 2026-05-27
 
 ### Added
