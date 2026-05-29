@@ -14,6 +14,13 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
+## Nowości w wersji v1.2.3
+
+1. **Kompatybilność z wdrożeniami Portainer / IT**: Obsługa uniwersyteckiej wirtualizacji przy użyciu dedykowanych sieci `macvlan` oraz zewnętrznych wolumenów bazodanowych podpiętych pod `/app/data`.
+2. **Dynamiczna konfiguracja SSL/HTTP**: Serwer Nginx we frontendzie automatycznie generuje certyfikaty self-signed przy braku certyfikatów zewnętrznych lub pozwala na całkowite wyłączenie protokołu HTTPS i wymuszenia SSL (opcje `DISABLE_SSL` / `HTTP_ONLY`).
+
+---
+
 ## Nowości w wersji v1.2.2
 
 1. **Obsługa planów z numeracją (Architektura Krajobrazu)**: Wprowadzono dynamiczną detekcję obecności liczby porządkowej (Lp.) w 11-kolumnowych tabelach PDF, zapobiegając przesunięciom kolumn i gubieniu przedmiotów.
@@ -81,6 +88,20 @@ Przed uruchomieniem aplikacji w wersji SSL z Docker Compose:
 3. Uruchom kontener poleceniem `docker compose up -d --build`.
 
 *Informacja techniczna: Plik konfiguracyjny sam mapuje bazę danych i podmontowuje ją w niewidocznym lokalnie, bezpiecznym wolumenie typu `sqlite_data`. Zapisane sylabusy pozostaną nienaruszone nawet po restartach obrazów Dockera (Dopóki nie wywołasz ręcznie komendy wpisującej destrukcję `docker compose down -v`)*
+
+### Wdrożenie produkcyjne (np. Portainer / Uniwersytecki Dział IT) 🌐
+
+W przypadku wdrożeń na infrastrukturze uniwersyteckiej przy użyciu menedżerów kontenerów typu **Portainer** (z dedykowanymi sieciami `macvlan` oraz zewnętrznymi wolumenami), system automatycznie wspiera elastyczną konfigurację:
+
+1. **Dynamiczna lokalizacja bazy danych:**
+   Backend automatycznie wykrywa zamontowanie wolumenu pod `/app/data` (standard dla Portainera) i używa go do zapisu bazy SQLite (`syllabus.db`). Jeżeli wolumen nie jest tam podmontowany (np. przy deweloperskim uruchomieniu), baza zostanie zapisana w lokalnym katalogu roboczym backendu (`/app/backend/data`).
+
+2. **Automatyczne/Elastyczne SSL:**
+   - **Brak zewnętrznego SSL / Brak podmontowanych certyfikatów:** Kontener frontendowy automatycznie wygeneruje tymczasowy certyfikat **self-signed** przy każdym uruchomieniu, aby serwer Nginx mógł poprawnie wystartować i obsługiwać bezpieczny protokół HTTPS.
+   - **Terminacja SSL na zewnętrznym proxy / firewallu:** Jeśli SSL jest obsługiwany przez router/firewall sieciowy uniwersytetu i ruch do kontenera trafia po zwykłym HTTP, ustaw zmienną środowiskową we frontendzie: `DISABLE_SSL=true`. Wyłączy to przekierowanie na HTTPS i skonfiguruje Nginx do pracy na czystym porcie 80.
+   - **Własny certyfikat SSL:** Podmontuj swoje pliki certyfikatu do katalogu `/etc/nginx/ssl` w kontenerze frontendowym jako `/etc/nginx/ssl/fullchain.pem` oraz `/etc/nginx/ssl/privkey.pem`.
+
+Szczegółowy plik konfiguracyjny dedykowany dla tego typu instalacji znajduje się w pliku [docker-compose.portainer.yml](file:///Users/marekurbaniak/Documents/Cursor/syllabus/docker-compose.portainer.yml).
 
 ---
 

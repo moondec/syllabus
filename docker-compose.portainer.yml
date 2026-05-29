@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # BACKEND - Odizolowany, tylko w sieci wewnętrznej
+  backend:
+    image: syllabus-backend:latest
+    container_name: syllabus-backend
+    volumes:
+      - syllabus_db_data:/app/data
+    networks:
+      - internal_net
+    restart: always
+
+  # FRONTEND - Aplikacja WWW na publicznym IP (macvlan)
+  frontend:
+    image: syllabus-frontend:latest
+    container_name: syllabus-frontend
+    # Konfiguracja FQDN
+    hostname: syllabus
+    domainname: up.poznan.pl
+    # Opcjonalne zmienne środowiskowe:
+    # Ustaw DISABLE_SSL=true lub HTTP_ONLY=true, jeśli SSL jest terminowany na zewnętrznym proxy/firewallu
+    # lub jeśli chcesz serwować aplikację wyłącznie przez HTTP na porcie 80.
+    # W przeciwnym razie, jeśli nie zamontujesz certyfikatów w /etc/nginx/ssl,
+    # kontener automatycznie wygeneruje certyfikat self-signed, by zapobiec awarii startu Nginx.
+    # environment:
+    #   - DISABLE_SSL=true
+    networks:
+      internal_net:
+      public_macvlan:
+        ipv4_address: 150.254.152.240
+    depends_on:
+      - backend
+    restart: always
+
+networks:
+  internal_net:
+    driver: bridge
+
+  public_macvlan:
+    external: true
+    name: vlan811
+
+volumes:
+  syllabus_db_data:

@@ -3,8 +3,16 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# SQLite database file path - using a subfolder for better Docker volume management
-DB_PATH = os.path.join(os.getcwd(), "data", "syllabus.db")
+# SQLite database file path - dynamically check directory for Portainer volume mount compatibility
+DB_DIR = os.environ.get("DB_DIR")
+if not DB_DIR:
+    # Portainer stack config uses /app/data volume mount. Local dev uses default data dir.
+    if os.path.exists("/app/data") and os.access("/app/data", os.W_OK):
+        DB_DIR = "/app/data"
+    else:
+        DB_DIR = os.path.join(os.getcwd(), "data")
+
+DB_PATH = os.path.join(DB_DIR, "syllabus.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 

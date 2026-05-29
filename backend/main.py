@@ -15,7 +15,7 @@ import bielik_service
 from pydantic import BaseModel
 from typing import Optional, Dict
 
-BACKEND_VERSION = "1.2.2"
+BACKEND_VERSION = "1.2.3"
 
 import models
 import database

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2026-05-29
+
+### Added
+- **Kompatybilność z wdrożeniami Portainer / IT**:
+  - Obsługa sieci typu `macvlan` oraz dynamiczne wykrywanie uniwersyteckiej konfiguracji zapisu bazy danych SQLite (preferowanie `/app/data` podpiętego jako wolumen Portainera z automatycznym fallbackiem do `./data`).
+  - Skrypt rozruchowy `30-setup-certs.sh` w kontenerze Nginx (frontend) automatycznie generujący certyfikaty SSL self-signed, gdy brak zewnętrznych kluczy SSL, zapobiegając awarii startu serwera.
+  - Opcjonalne zmienne środowiskowe `DISABLE_SSL` oraz `HTTP_ONLY` umożliwiające wyłączenie wymuszenia SSL (przydatne przy terminacji ruchu SSL na zewnętrznym firewallu lub load balancerze).
+  - Szablon konfiguracyjny `docker-compose.portainer.yml` dedykowany dla Działów IT uczelni.
+
+### Changed
+- **Wersja Oprogramowania**: Podniesiono wersję frontendu i backendu do `v1.2.3`.
+
+---
+
 ## [1.2.2] - 2026-05-27
 
 ### Fixed
