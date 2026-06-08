@@ -25,6 +25,11 @@ services:
     # kontener automatycznie wygeneruje certyfikat self-signed, by zapobiec awarii startu Nginx.
     # environment:
     #   - DISABLE_SSL=true
+
+    # Własne certyfikaty SSL z maszyny gospodarza (odkomentuj poniższy blok i podaj poprawne ścieżki):
+    # volumes:
+    #   - /bezwzgledna/sciezka/na/serwerze/certyfikat.crt:/etc/nginx/ssl/fullchain.pem:ro
+    #   - /bezwzgledna/sciezka/na/serwerze/klucz.key:/etc/nginx/ssl/privkey.pem:ro
     networks:
       internal_net:
       public_macvlan:
