@@ -84,7 +84,8 @@ Kontener NGINX opublikuje cały frontend na standardowych portach HTTP (`80`) i 
 **Konfiguracja certyfikatów SSL:**
 Przed uruchomieniem aplikacji w wersji SSL z Docker Compose:
 1. Przekaż plik `ssl/syllabus.csr` administratorowi sieci w celu podpisania.
-2. Zapisz otrzymany certyfikat w lokalnym katalogu jako `ssl/fullchain.pem`.
+2. Zapisz otrzymany certyfikat w lokalnym katalogu jako `ssl/up_puls_wildcard.pem`.
+(Oryginalny wygenerowany klucz prywatny znajduje się pod nazwą `ssl/klucz_prywatny.pem`).
 3. Uruchom kontener poleceniem `docker compose up -d --build`.
 
 *Informacja techniczna: Plik konfiguracyjny sam mapuje bazę danych i podmontowuje ją w niewidocznym lokalnie, bezpiecznym wolumenie typu `sqlite_data`. Zapisane sylabusy pozostaną nienaruszone nawet po restartach obrazów Dockera (Dopóki nie wywołasz ręcznie komendy wpisującej destrukcję `docker compose down -v`)*
@@ -99,7 +100,7 @@ W przypadku wdrożeń na infrastrukturze uniwersyteckiej przy użyciu menedżer�
 2. **Automatyczne/Elastyczne SSL:**
    - **Brak zewnętrznego SSL / Brak podmontowanych certyfikatów:** Kontener frontendowy automatycznie wygeneruje tymczasowy certyfikat **self-signed** przy każdym uruchomieniu, aby serwer Nginx mógł poprawnie wystartować i obsługiwać bezpieczny protokół HTTPS.
    - **Terminacja SSL na zewnętrznym proxy / firewallu:** Jeśli SSL jest obsługiwany przez router/firewall sieciowy uniwersytetu i ruch do kontenera trafia po zwykłym HTTP, ustaw zmienną środowiskową we frontendzie: `DISABLE_SSL=true`. Wyłączy to przekierowanie na HTTPS i skonfiguruje Nginx do pracy na czystym porcie 80.
-   - **Własny certyfikat SSL:** Podmontuj swoje pliki certyfikatu do katalogu `/etc/nginx/ssl` w kontenerze frontendowym jako `/etc/nginx/ssl/fullchain.pem` oraz `/etc/nginx/ssl/privkey.pem`.
+   - **Własny certyfikat SSL:** Podmontuj swoje pliki certyfikatu do katalogu `/etc/nginx/ssl` w kontenerze frontendowym jako `/etc/nginx/ssl/up_puls_wildcard.pem` oraz `/etc/nginx/ssl/klucz_prywatny.pem`.
 
 Szczegółowy plik konfiguracyjny dedykowany dla tego typu instalacji znajduje się w pliku [docker-compose.portainer.yml](file:///Users/marekurbaniak/Documents/Cursor/syllabus/docker-compose.portainer.yml).
 

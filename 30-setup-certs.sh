@@ -14,11 +14,11 @@ if [ "$VAL_DISABLE_SSL" = "true" ] || [ "$VAL_DISABLE_SSL" = "1" ] || [ "$VAL_HT
 else
     echo "SSL is enabled. Checking certificates..."
     mkdir -p /etc/nginx/ssl
-    if [ ! -f /etc/nginx/ssl/fullchain.pem ] || [ ! -f /etc/nginx/ssl/privkey.pem ]; then
+    if [ ! -f /etc/nginx/ssl/up_puls_wildcard.pem ] || [ ! -f /etc/nginx/ssl/klucz_prywatny.pem ]; then
         echo "SSL certificates not found at /etc/nginx/ssl/. Generating self-signed certificates..."
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-            -keyout /etc/nginx/ssl/privkey.pem \
-            -out /etc/nginx/ssl/fullchain.pem \
+            -keyout /etc/nginx/ssl/klucz_prywatny.pem \
+            -out /etc/nginx/ssl/up_puls_wildcard.pem \
             -subj "/C=PL/O=UP Poznan/CN=syllabus.up.poznan.pl"
     else
         echo "Using existing SSL certificates."

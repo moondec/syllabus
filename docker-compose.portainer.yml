@@ -28,8 +28,8 @@ services:
 
     # Własne certyfikaty SSL z maszyny gospodarza (odkomentuj poniższy blok i podaj poprawne ścieżki):
     # volumes:
-    #   - /bezwzgledna/sciezka/na/serwerze/certyfikat.crt:/etc/nginx/ssl/fullchain.pem:ro
-    #   - /bezwzgledna/sciezka/na/serwerze/klucz.key:/etc/nginx/ssl/privkey.pem:ro
+    #   - /bezwzgledna/sciezka/na/serwerze/certyfikat.crt:/etc/nginx/ssl/up_puls_wildcard.pem:ro
+    #   - /bezwzgledna/sciezka/na/serwerze/klucz.key:/etc/nginx/ssl/klucz_prywatny.pem:ro
     networks:
       internal_net:
       public_macvlan:
