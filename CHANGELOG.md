@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2026-06-08
+
+### Added
+- **Narzędzia diagnostyczne**: Do obrazów obu kontenerów (Nginx i Python) wbudowano `mc`, `htop`, `nano` oraz powłokę `bash`, co ułatwi ewentualny ręczny audyt w razie problemów.
+- **Szablony Portainer**: Dodano wykomentowany, gotowy blok kodu obrazujący sposób montowania zewnetrznych kluczy SSL w pliku `docker-compose.portainer.yml`.
+
+### Fixed
+- **Niezawodność parsowania**: Zaimplementowano uodpornienie skryptu na niespodziewane znaki (białe znaki, cudzysłowy, duże litery) w zmiennej `DISABLE_SSL` / `HTTP_ONLY`. Zabezpiecza to tryb wyłączenia certyfikatów SSL przed powrotem do certyfikatów self-signed z powodu innej stylistyki zapisu zmiennych w GUI Portainera.
+- **Bezpieczeństwo rozruchu HTTP**: Skrypt startowy wymuszający HTTP teraz w 100% usuwa jakikolwiek ślad starego szablonu konfiguracyjnego SSL, by uniknąć przypadkowego ładowania przez proces Nginx.
+- **Eliminacja błędów sieci bez IPv6**: Wyrzucono z domyślnego obrazu Nginx stary skrypt startowy `10-listen-on-ipv6-by-default.sh`, by kontener nie awanturował się w środowiskach opartych wyłącznie o IPv4.
+
+### Changed
+- **Czytelność nazw kluczy**: Standardowe pliki zabezpieczeń SSL, których uzywa konfiguracja (`fullchain.pem`, `privkey.pem`) zostały przemianowane na polskojęzyczne i bardziej czytelne odpowiedniki: `up_puls_wildcard.pem` oraz `klucz_prywatny.pem`.
+- **Wersja Oprogramowania**: Podniesiono wersję frontendu do `v1.2.4`.
+
 ## [1.2.3] - 2026-05-29
 
 ### Added

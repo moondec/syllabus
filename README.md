@@ -14,7 +14,7 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
-## Nowości w wersji v1.2.3
+## Nowości w wersji v1.2.4
 
 1. **Kompatybilność z wdrożeniami Portainer / IT**: Obsługa uniwersyteckiej wirtualizacji przy użyciu dedykowanych sieci `macvlan` oraz zewnętrznych wolumenów bazodanowych podpiętych pod `/app/data`.
 2. **Dynamiczna konfiguracja SSL/HTTP**: Serwer Nginx we frontendzie automatycznie generuje certyfikaty self-signed przy braku certyfikatów zewnętrznych lub pozwala na całkowite wyłączenie protokołu HTTPS i wymuszenia SSL (opcje `DISABLE_SSL` / `HTTP_ONLY`).
