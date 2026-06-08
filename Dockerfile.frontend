@@ -16,7 +16,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Install openssl for generating self-signed certificates if needed, and debugging tools
-RUN apk add --no-cache openssl mc htop
+RUN apk add --no-cache openssl mc htop bash nano
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
