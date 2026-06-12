@@ -20,11 +20,14 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: syllabus-frontend
     restart: unless-stopped
+    # Jeśli chcesz całkowicie wyłączyć SSL na środowisku lokalnym, odkomentuj poniższe linie:
+    # environment:
+    #   - DISABLE_SSL=true
     ports:
       - "8080:80"
       - "8443:443"
     volumes:
-      - ./ssl:/etc/nginx/ssl:ro
+      - ./ssl:/etc/nginx/ssl
     depends_on:
       - backend
 
