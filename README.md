@@ -14,6 +14,12 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
+## Nowości w wersji v1.3.1
+
+1. **Wbudowana Dokumentacja (In-App Docs)**: Dodano zintegrowany z aplikacją, ładnie sformatowany widok dokumentacji (`#/docs`), który w locie kompiluje plik `README.md` do czytelnego dokumentu HTML bez konieczności jego pobierania jako surowy plik `.md`.
+
+---
+
 ## Nowości w wersji v1.3.0
 
 1. **Nowe Logo i Kolorystyka**: Wprowadzono nową identyfikację wizualną, dodano oficjalne logo Uniwersytetu Przyrodniczego w Poznaniu w nagłówku. Zmieniono główny motyw kolorystyczny na ciemną zieleń charakterystyczną dla uczelni.

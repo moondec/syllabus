@@ -21,8 +21,8 @@ services:
     container_name: syllabus-frontend
     restart: unless-stopped
     # Jeśli chcesz całkowicie wyłączyć SSL na środowisku lokalnym, odkomentuj poniższe linie:
-    # environment:
-    #   - DISABLE_SSL=true
+    environment:
+      - DISABLE_SSL=true
     ports:
       - "8080:80"
       - "8443:443"

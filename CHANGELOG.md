@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2026-06-12
+
+### Added
+- **Wbudowana Dokumentacja**: Dodano zintegrowany z aplikacją widok dokumentacji (`#/docs`), który w locie kompiluje plik `README.md` do czytelnego, sformatowanego dokumentu HTML (React Markdown + Tailwind Typography) bez konieczności pobierania surowego pliku. Link w stopce otwiera dokumentację w nowej karcie przeglądarki.
+
+---
+
 ## [1.3.0] - 2026-06-12
 
 ### Added

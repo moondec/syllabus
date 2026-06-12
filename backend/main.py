@@ -14,7 +14,7 @@ import data_merger
 import bielik_service
 from pydantic import BaseModel
 from typing import Optional, Dict
-BACKEND_VERSION = "1.3.0"
+BACKEND_VERSION = "1.3.1"
 
 import models
 import database

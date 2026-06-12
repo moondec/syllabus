@@ -3,11 +3,19 @@ import { FileUp, FileText } from 'lucide-react';
 import axios from 'axios';
 import SyllabusWizard from './components/SyllabusWizard';
 import ErrorBoundary from './components/ErrorBoundary';
+import Documentation from './Documentation';
 
-const FRONTEND_VERSION = "1.3.0";
+const FRONTEND_VERSION = "1.3.1";
 
 function App() {
   const [backendVersion, setBackendVersion] = useState('');
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    const handleHashChange = () => setCurrentHash(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   useEffect(() => {
     axios.get('/api/version')
@@ -21,6 +29,10 @@ function App() {
         setBackendVersion('Błąd');
       });
   }, []);
+
+  if (currentHash === '#docs' || currentHash === '#/docs') {
+    return <Documentation />;
+  }
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans selection:bg-green-100 selection:text-green-900">
       <header className="bg-green-800 border-b border-green-900 sticky top-0 z-10 shadow-md">
@@ -40,24 +52,24 @@ function App() {
         </ErrorBoundary>
       </main>
 
-      <footer className="py-4 text-center text-xs text-slate-500 bg-white border-t border-slate-200">
+      <footer className="py-4 text-center text-xs text-black bg-green-800 border-t border-green-900">
         <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6 mb-2">
           <div className="flex gap-4">
             <span>Frontend: v{FRONTEND_VERSION}</span>
             <span>Backend: {backendVersion ? `v${backendVersion}` : 'łączenie...'}</span>
           </div>
-          <span className="hidden sm:inline text-slate-300">|</span>
+          <span className="hidden sm:inline text-black">|</span>
           <a 
-            href="/README.md" 
+            href="#docs" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-green-600 hover:text-green-800 transition-colors hover:underline flex items-center gap-1 font-medium"
+            className="text-black hover:text-slate-800 transition-colors hover:underline flex items-center gap-1 font-medium"
           >
             Dokumentacja projektu (README)
           </a>
         </div>
         <div className="mt-2">
-          Autor: Marek Urbaniak | Kontakt: <a href="mailto:marek.urbaniak@up.poznan.pl" className="text-green-600 hover:underline">marek.urbaniak@up.poznan.pl</a>
+          Autor: Marek Urbaniak | Kontakt: <a href="mailto:marek.urbaniak@up.poznan.pl" className="text-white hover:underline font-medium">marek.urbaniak@up.poznan.pl</a>
         </div>
       </footer>
     </div>
