@@ -197,21 +197,21 @@ export default function SyllabusWizard() {
             {/* PROGRESS BAR */}
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm font-medium text-slate-500 items-center justify-between">
                 <div className="flex flex-wrap gap-2 md:gap-4 items-center">
-                    <span className={step >= 1 ? "text-indigo-600" : ""}>1. Wgraj program</span>
+                    <span className={step >= 1 ? "text-green-600" : ""}>1. Wgraj program</span>
                     <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
-                    <span className={step >= 2 ? "text-indigo-600" : ""}>2. Wybierz przedmiot</span>
+                    <span className={step >= 2 ? "text-green-600" : ""}>2. Wybierz przedmiot</span>
                     <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
-                    <span className={step >= 3 ? "text-indigo-600" : ""}>3. Weryfikuj tabelę</span>
+                    <span className={step >= 3 ? "text-green-600" : ""}>3. Weryfikuj tabelę</span>
                     <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
-                    <span className={step >= 4 ? "text-indigo-600" : ""}>4. Zapisz Sylabus</span>
+                    <span className={step >= 4 ? "text-green-600" : ""}>4. Zapisz Sylabus</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setShowArchive(!showArchive)}
                         className={`flex items-center gap-1.5 transition-colors px-3 py-1.5 rounded-lg border shadow-sm ${showArchive
-                            ? 'bg-indigo-600 text-white border-indigo-600'
-                            : 'text-slate-500 hover:text-indigo-600 bg-white border-slate-200 hover:border-indigo-200 hover:bg-indigo-50'
+                            ? 'bg-green-600 text-white border-green-600'
+                            : 'text-slate-500 hover:text-green-600 bg-white border-slate-200 hover:border-green-200 hover:bg-green-50'
                             }`}
                         title="Otwórz archiwum zapisanych sylabusów"
                     >
@@ -221,7 +221,7 @@ export default function SyllabusWizard() {
 
                     <button
                         onClick={() => setShowSettings(true)}
-                        className="flex items-center gap-1.5 text-slate-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
+                        className="flex items-center gap-1.5 text-slate-500 hover:text-green-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hover:border-green-200 hover:bg-green-50"
                         title="Ustawienia modelu AI"
                     >
                         <Settings className="w-4 h-4" />
@@ -236,7 +236,7 @@ export default function SyllabusWizard() {
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                             <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <Settings className="w-5 h-5 text-indigo-600" />
+                                <Settings className="w-5 h-5 text-green-600" />
                                 Konfiguracja modelu AI
                             </h3>
                             <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600 p-1">
@@ -250,7 +250,7 @@ export default function SyllabusWizard() {
                                     type="text"
                                     value={providerConfig.endpointUrl}
                                     onChange={e => setProviderConfig({ ...providerConfig, endpointUrl: e.target.value })}
-                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-green-500/50"
                                 />
                                 <p className="text-[10px] text-slate-500 mt-1">Domyślnie: https://llm.hpc.pcss.pl/v1</p>
                             </div>
@@ -260,7 +260,7 @@ export default function SyllabusWizard() {
                                     type="text"
                                     value={providerConfig.model}
                                     onChange={e => setProviderConfig({ ...providerConfig, model: e.target.value })}
-                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-green-500/50"
                                 />
                                 <p className="text-[10px] text-slate-500 mt-1">Domyślnie: bielik_11b</p>
                             </div>
@@ -271,7 +271,7 @@ export default function SyllabusWizard() {
                                     value={providerConfig.apiKey}
                                     onChange={e => setProviderConfig({ ...providerConfig, apiKey: e.target.value })}
                                     placeholder="Wpisz klucz (nadpisze klucz z systemu)"
-                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-green-500/50"
                                 />
                                 <p className="text-[10px] text-slate-500 mt-1">Zostaw puste, jeśli klucz znajduje się w `keyring` systemu (pcss_llm_app).</p>
                             </div>
@@ -285,7 +285,7 @@ export default function SyllabusWizard() {
                                 </button>
                                 <button
                                     onClick={() => handleSaveSettings(providerConfig)}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm shadow-indigo-600/20"
+                                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm shadow-green-600/20"
                                 >
                                     Zapisz ustawienia
                                 </button>
@@ -317,10 +317,10 @@ export default function SyllabusWizard() {
                             <p className="text-slate-500">Wgraj plik z programem studiów (.docx lub .pdf), a my postaramy się wyciągnąć z niego potrzebne informacje do tabeli.</p>
                         </div>
                         {loading ? (
-                            <div className="flex flex-col items-center justify-center p-12 bg-indigo-50 rounded-xl border-2 border-dashed border-indigo-200">
-                                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-4" />
-                                <p className="text-indigo-900 font-medium">Analizuję dokument...</p>
-                                <p className="text-indigo-700/70 text-sm mt-1">To może potrwać kilka sekund</p>
+                            <div className="flex flex-col items-center justify-center p-12 bg-green-50 rounded-xl border-2 border-dashed border-green-200">
+                                <Loader2 className="w-8 h-8 text-green-600 animate-spin mb-4" />
+                                <p className="text-green-900 font-medium">Analizuję dokument...</p>
+                                <p className="text-green-700/70 text-sm mt-1">To może potrwać kilka sekund</p>
                             </div>
                         ) : (
                             <FileUploader onFileSelect={handleFileUpload} />
@@ -337,7 +337,7 @@ export default function SyllabusWizard() {
                             <div className="space-y-8">
                                 {/* Poziom I */}
                                 <div>
-                                    <h4 className="text-sm font-bold text-slate-700 mb-4 bg-slate-100 py-1.5 px-3 rounded-md border-l-4 border-indigo-400">
+                                    <h4 className="text-sm font-bold text-slate-700 mb-4 bg-slate-100 py-1.5 px-3 rounded-md border-l-4 border-green-400">
                                         Studia I stopnia
                                     </h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -357,7 +357,7 @@ export default function SyllabusWizard() {
                                             loading={planLoading.NS1}
                                             onUpload={handlePlanUpload}
                                             onClear={() => setPlanDataNS1(null)}
-                                            accentColor="indigo"
+                                            accentColor="green"
                                         />
                                     </div>
                                 </div>
@@ -384,7 +384,7 @@ export default function SyllabusWizard() {
                                             loading={planLoading.NS2}
                                             onUpload={handlePlanUpload}
                                             onClear={() => setPlanDataNS2(null)}
-                                            accentColor="indigo"
+                                            accentColor="green"
                                         />
                                     </div>
                                 </div>
@@ -437,12 +437,12 @@ export default function SyllabusWizard() {
                                         let theme = {
                                             bg: "bg-white",
                                             border: "border-slate-200",
-                                            hoverBorder: "hover:border-indigo-400",
-                                            hoverShadow: "hover:shadow-indigo-500/10",
-                                            badgeBg: "bg-indigo-100",
-                                            badgeText: "text-indigo-700",
-                                            borderBottom: "border-indigo-100",
-                                            subjectHoverText: "group-hover:text-indigo-600"
+                                            hoverBorder: "hover:border-green-400",
+                                            hoverShadow: "hover:shadow-green-500/10",
+                                            badgeBg: "bg-green-100",
+                                            badgeText: "text-green-700",
+                                            borderBottom: "border-green-100",
+                                            subjectHoverText: "group-hover:text-green-600"
                                         };
 
                                         if (levelLower.includes("pierwszego")) {
@@ -519,7 +519,7 @@ export default function SyllabusWizard() {
                                 <p className="text-slate-500 mb-6 max-w-lg mx-auto">Format dokumentu różni się od obsługiwanego, stąd nie byliśmy w stanie automatycznie wyciągnąć danych. Możesz wypełnić dokument ręcznie.</p>
                                 <button
                                     onClick={() => handleSelectSubject({ nazwa_przedmiotu: '', ects: '' })}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 rounded-xl px-8 py-3 font-medium transition-all"
+                                    className="bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-600/20 rounded-xl px-8 py-3 font-medium transition-all"
                                 >
                                     Przejdź do ręcznego uzupełniania
                                 </button>
@@ -535,7 +535,7 @@ export default function SyllabusWizard() {
                                 {extractedSubjects.length > 1 && (
                                     <button
                                         onClick={() => setStep(2)}
-                                        className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition-colors"
+                                        className="text-slate-500 hover:text-green-600 hover:bg-green-50 p-2 rounded-lg transition-colors"
                                         title="Wróć do listy przedmiotów"
                                     >
                                         <ArrowLeft className="w-5 h-5" />
@@ -552,7 +552,7 @@ export default function SyllabusWizard() {
                                     <button
                                         onClick={() => setLanguage('pl')}
                                         className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${language === 'pl'
-                                                ? 'bg-white text-indigo-700 shadow-sm border border-indigo-200'
+                                                ? 'bg-white text-green-700 shadow-sm border border-green-200'
                                                 : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
@@ -561,7 +561,7 @@ export default function SyllabusWizard() {
                                     <button
                                         onClick={() => setLanguage('en')}
                                         className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${language === 'en'
-                                                ? 'bg-white text-indigo-700 shadow-sm border border-indigo-200'
+                                                ? 'bg-white text-green-700 shadow-sm border border-green-200'
                                                 : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
@@ -580,7 +580,7 @@ export default function SyllabusWizard() {
                                             <button
                                     onClick={handleGenerateDocument}
                                                 disabled={loading || saveLoading}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
                                 >
                                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                                     Eksportuj DOCX
@@ -619,15 +619,15 @@ function PlanUploader({ label, type, data, loading, onUpload, onClear, accentCol
     const fileInputRef = useRef(null);
 
     const isEmerald = accentColor === 'emerald';
-    const activeBorderClass = isEmerald ? 'border-emerald-500 bg-emerald-50/60' : 'border-indigo-500 bg-indigo-50/60';
-    const bgClass = isEmerald ? 'bg-emerald-50' : 'bg-indigo-50';
-    const borderClass = isEmerald ? 'border-emerald-200' : 'border-indigo-200';
-    const textClass = isEmerald ? 'text-emerald-800' : 'text-indigo-800';
-    const subTextClass = isEmerald ? 'text-emerald-600' : 'text-indigo-600';
-    const iconClass = isEmerald ? 'text-emerald-500' : 'text-indigo-500';
-    const hoverBorderClass = isEmerald ? 'hover:border-emerald-400' : 'hover:border-indigo-400';
-    const hoverBgClass = isEmerald ? 'hover:bg-emerald-50/40' : 'hover:bg-indigo-50/40';
-    const clearBtnClass = isEmerald ? 'text-emerald-400 hover:text-emerald-600' : 'text-indigo-400 hover:text-indigo-600';
+    const activeBorderClass = isEmerald ? 'border-emerald-500 bg-emerald-50/60' : 'border-green-500 bg-green-50/60';
+    const bgClass = isEmerald ? 'bg-emerald-50' : 'bg-green-50';
+    const borderClass = isEmerald ? 'border-emerald-200' : 'border-green-200';
+    const textClass = isEmerald ? 'text-emerald-800' : 'text-green-800';
+    const subTextClass = isEmerald ? 'text-emerald-600' : 'text-green-600';
+    const iconClass = isEmerald ? 'text-emerald-500' : 'text-green-500';
+    const hoverBorderClass = isEmerald ? 'hover:border-emerald-400' : 'hover:border-green-400';
+    const hoverBgClass = isEmerald ? 'hover:bg-emerald-50/40' : 'hover:bg-green-50/40';
+    const clearBtnClass = isEmerald ? 'text-emerald-400 hover:text-emerald-600' : 'text-green-400 hover:text-green-600';
 
     const handleDrag = useCallback((e) => {
         e.preventDefault();
@@ -693,7 +693,7 @@ function PlanUploader({ label, type, data, loading, onUpload, onClear, accentCol
             onClick={() => fileInputRef.current?.click()}
         >
             <FileUp className={`w-5 h-5 transition-colors ${isDragActive ? iconClass : 'text-slate-400'}`} />
-            <span className={`text-xs font-medium transition-colors ${isDragActive ? (isEmerald ? 'text-emerald-700' : 'text-indigo-700') : 'text-slate-500'}`}>
+            <span className={`text-xs font-medium transition-colors ${isDragActive ? (isEmerald ? 'text-emerald-700' : 'text-green-700') : 'text-slate-500'}`}>
                 {isDragActive ? 'Upuść plik tutaj' : `Wgraj plan ${label}`}
             </span>
             <span className="text-[10px] text-slate-400">lub przeciągnij i upuść</span>

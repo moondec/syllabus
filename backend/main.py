@@ -14,8 +14,7 @@ import data_merger
 import bielik_service
 from pydantic import BaseModel
 from typing import Optional, Dict
-
-BACKEND_VERSION = "1.2.3"
+BACKEND_VERSION = "1.3.0"
 
 import models
 import database
@@ -184,7 +183,6 @@ async def download_file(file_id: str, filename: str):
         filename=file_info["filename"],
         media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         headers={
-            "Content-Disposition": f'attachment; filename="{file_info["filename"]}"',
             "Cache-Control": "no-cache, no-store, must-revalidate",
         }
     )

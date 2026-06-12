@@ -38,17 +38,17 @@ export default function MultiSelectDropdown({ selected, options, onChange, label
         <div className="relative" ref={dropdownRef}>
             <div 
                 onClick={() => setIsOpen(!isOpen)}
-                className="min-h-[42px] w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-400 transition-colors"
+                className="min-h-[42px] w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex flex-wrap gap-2 cursor-pointer hover:border-green-400 transition-colors"
             >
                 {selectedArray.length > 0 ? (
                     selectedArray.map(symbol => (
                         <span 
                             key={symbol} 
-                            className="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 group"
+                            className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 group"
                         >
                             {symbol}
                             <X 
-                                className="w-3 h-3 cursor-pointer hover:text-indigo-900" 
+                                className="w-3 h-3 cursor-pointer hover:text-green-900" 
                                 onClick={(e) => removeOption(e, symbol)}
                             />
                         </span>
@@ -69,9 +69,9 @@ export default function MultiSelectDropdown({ selected, options, onChange, label
                                 <div 
                                     key={option.symbol}
                                     onClick={() => toggleOption(option.symbol)}
-                                    className={`px-4 py-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50 last:border-0 ${selectedArray.includes(option.symbol) ? 'bg-indigo-50/50' : ''}`}
+                                    className={`px-4 py-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50 last:border-0 ${selectedArray.includes(option.symbol) ? 'bg-green-50/50' : ''}`}
                                 >
-                                    <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-colors ${selectedArray.includes(option.symbol) ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                    <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-colors ${selectedArray.includes(option.symbol) ? 'bg-green-600 border-green-600 text-white' : 'border-slate-300 bg-white'}`}>
                                         {selectedArray.includes(option.symbol) && <Check className="w-3 h-3" />}
                                     </div>
                                     <div className="flex-1">

@@ -139,13 +139,13 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                     <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
                         <button
                             onClick={() => setGroupMode('unit')}
-                            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${groupMode === 'unit' ? 'bg-white text-indigo-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${groupMode === 'unit' ? 'bg-white text-green-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Wydziały / Katedry
                         </button>
                         <button
                             onClick={() => setGroupMode('field')}
-                            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${groupMode === 'field' ? 'bg-white text-indigo-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${groupMode === 'field' ? 'bg-white text-green-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Kierunki studiów
                         </button>
@@ -158,7 +158,7 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                             placeholder="Szukaj przedmiotu..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm"
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 shadow-sm"
                         />
                     </div>
                 </div>
@@ -173,7 +173,7 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
+                    <Loader2 className="w-10 h-10 text-green-600 animate-spin mb-4" />
                     <p className="text-slate-500 font-medium">Ładowanie archiwum...</p>
                 </div>
             ) : Object.keys(groupedSyllabuses).length === 0 ? (
@@ -187,7 +187,7 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                     </p>
                     <button 
                         onClick={onBack}
-                        className="mt-6 text-indigo-600 font-semibold hover:text-indigo-700 underline underline-offset-4"
+                        className="mt-6 text-green-600 font-semibold hover:text-green-700 underline underline-offset-4"
                     >
                         Przejdź do kreatora
                     </button>
@@ -212,12 +212,12 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                                     >
                                         <div className="flex items-center gap-3">
                                             {groupMode === 'unit' ? (
-                                                <Building2 className={`w-5 h-5 ${isExpanded ? 'text-indigo-600' : 'text-slate-400'}`} />
+                                                <Building2 className={`w-5 h-5 ${isExpanded ? 'text-green-600' : 'text-slate-400'}`} />
                                                     ) : (
                                                         <GraduationCap className={`w-5 h-5 ${isExpanded ? 'text-emerald-600' : 'text-slate-400'}`} />
                                                     )}
                                                     <h3 className="font-bold text-slate-800 text-left">{groupName}</h3>
-                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ml-2 ${groupMode === 'unit' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ml-2 ${groupMode === 'unit' ? 'bg-green-100 text-green-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                                         {syllabusesArray.length} sylabusów
                                                     </span>
                                                 </div>
@@ -233,11 +233,11 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                                                             onClick={(e) => {
                                                                 if (deleteConfirmId !== syllabus.id) handleEdit(syllabus.id);
                                                             }}
-                                                            className={`group border rounded-lg p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${deleteConfirmId === syllabus.id ? 'border-red-300 bg-red-50/50' : 'border-slate-200 bg-white hover:border-indigo-400 hover:shadow-md cursor-pointer'}`}
+                                                            className={`group border rounded-lg p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${deleteConfirmId === syllabus.id ? 'border-red-300 bg-red-50/50' : 'border-slate-200 bg-white hover:border-green-400 hover:shadow-md cursor-pointer'}`}
                                                         >
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="flex items-center gap-2 mb-1">
-                                                                    <h5 className="text-base font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                                                                    <h5 className="text-base font-bold text-slate-800 truncate group-hover:text-green-600 transition-colors">
                                                                         {syllabus.subject_name || 'Bez nazwy'}
                                                                     </h5>
                                                                     <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500">
@@ -252,7 +252,7 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                                                                         </div>
                                                                     )}
                                                                     {groupMode === 'field' && (
-                                                                        <div className="flex items-center gap-1.5 font-medium text-indigo-700">
+                                                                        <div className="flex items-center gap-1.5 font-medium text-green-700">
                                                                             <Building2 className="w-3.5 h-3.5" />
                                                                             <span>{syllabus.unit || 'Brak wydziału'}</span>
                                                                         </div>
@@ -283,7 +283,7 @@ export default function ArchiveView({ onEditSyllabus, onBack }) {
                                                             <div className="flex items-center gap-1">
                                                                 <button
                                                                     onClick={(e) => handleDownload(syllabus.id, e)}
-                                                                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-all"
+                                                                    className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-md transition-all"
                                                                     title="Pobierz DOCX"
                                                                 >
                                                                     <Download className="w-4 h-4" />

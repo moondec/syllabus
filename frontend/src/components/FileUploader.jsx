@@ -54,7 +54,7 @@ export default function FileUploader({ onFileSelect }) {
         <div className="w-full max-w-2xl mx-auto">
             <div
                 className={`relative rounded-2xl border-2 border-dashed transition-all duration-200 ease-in-out p-12 text-center flex flex-col items-center justify-center gap-4 ${isDragActive
-                        ? 'border-indigo-500 bg-indigo-50/50'
+                        ? 'border-green-500 bg-green-50/50'
                         : selectedFile
                             ? 'border-emerald-500 bg-emerald-50/30'
                             : 'border-slate-300 hover:border-slate-400 bg-slate-50'
@@ -103,7 +103,7 @@ export default function FileUploader({ onFileSelect }) {
                                 Przeciągnij i upuść plik
                             </p>
                             <p className="text-sm text-slate-500 mt-1">
-                                lub <span className="text-indigo-600 font-medium">przeglądaj pliki</span>, by wybrać dokument.
+                                lub <span className="text-green-600 font-medium">przeglądaj pliki</span>, by wybrać dokument.
                             </p>
                             <p className="text-xs text-slate-400 mt-4">Odczytujemy pliki .PDF oraz .DOCX</p>
                         </div>
@@ -115,7 +115,7 @@ export default function FileUploader({ onFileSelect }) {
                 <div className="mt-8 text-center animate-in slide-in-from-bottom-4 fade-in duration-500">
                     <button
                         onClick={submitFile}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 rounded-xl px-8 py-3.5 font-semibold text-lg hover:-translate-y-0.5 transition-all duration-200"
+                        className="bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-600/20 rounded-xl px-8 py-3.5 font-semibold text-lg hover:-translate-y-0.5 transition-all duration-200"
                     >
                         Przetwórz Program Studiów
                     </button>

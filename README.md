@@ -14,6 +14,14 @@ Automatyczny system generowania sylabusów (kart przedmiotów) na podstawie prog
 
 ---
 
+## Nowości w wersji v1.3.0
+
+1. **Nowe Logo i Kolorystyka**: Wprowadzono nową identyfikację wizualną, dodano oficjalne logo Uniwersytetu Przyrodniczego w Poznaniu w nagłówku. Zmieniono główny motyw kolorystyczny na ciemną zieleń charakterystyczną dla uczelni.
+2. **Autorstwo i Kontakt**: W stopce aplikacji umieszczono dane autora wraz z kontaktowym adreresem e-mail.
+3. **Poprawka Pobrań (Kodowanie Znaków)**: Wyeliminowano problem z błędem serwera (500) przy próbie pobrania plików zawierających polskie znaki w nazwie (np. "ż", "ś") na niektórych systemach Linux/Docker, polegając na natywnym wsparciu FastAPI.
+
+---
+
 ## Nowości w wersji v1.2.4
 
 1. **Kompatybilność z wdrożeniami Portainer / IT**: Obsługa uniwersyteckiej wirtualizacji przy użyciu dedykowanych sieci `macvlan` oraz zewnętrznych wolumenów bazodanowych podpiętych pod `/app/data`.

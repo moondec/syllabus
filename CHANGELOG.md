@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-06-12
+
+### Added
+- **UI & Branding**: Dodano logo Uniwersytetu Przyrodniczego w Poznaniu w nagłówku aplikacji. Zmieniono główną kolorystykę z niebieskiej/indigo na ciemną zieleń (UPP) by lepiej odzwierciedlała identyfikację wizualną uczelni. Dodano w stopce imię i nazwisko autora (Marek Urbaniak) oraz adres e-mail kontaktowy.
+
+### Fixed
+- **Pobieranie plików z polskimi znakami**: Naprawiono błąd `500 Internal Server Error` występujący podczas pobierania sylabusów (zarówno nowo wygenerowanych, jak i tych z archiwum). Błąd wynikał z problemu z kodowaniem (UnicodeEncodeError) polskich znaków (np. "ż", "ś") w nagłówku `Content-Disposition`. Nagłówek ten jest teraz poprawnie obsługiwany przez klasę `FileResponse` frameworka FastAPI.
+
+---
+
 ## [1.2.4] - 2026-06-08
 
 ### Added

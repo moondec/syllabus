@@ -184,9 +184,9 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="bg-indigo-50/50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+                <div className="bg-green-50/50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                     <h3 className="font-semibold text-slate-800">Edytor Sylabusa</h3>
-                    <span className="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full uppercase tracking-wider">
+                    <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full uppercase tracking-wider">
                         Tryb Ręczny
                     </span>
                 </div>
@@ -210,7 +210,7 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                             onChange={(e) => handleChange(f.key, e.target.value)}
                                             placeholder={f.base_value || ''}
                                             rows={5}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow resize-y disabled:opacity-70 disabled:bg-slate-100"
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-shadow resize-y disabled:opacity-70 disabled:bg-slate-100"
                                             disabled={aiLoading[f.key]}
                                         />
                                         {f.ai && (
@@ -218,7 +218,7 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                                 type="button"
                                                 onClick={() => handleAIGenerate(f.key)}
                                                 disabled={aiLoading[f.key]}
-                                                className="absolute right-3 bottom-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-2 rounded-lg shadow hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center"
+                                                className="absolute right-3 bottom-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white p-2 rounded-lg shadow hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center"
                                                 title="Wygeneruj propozycję za pomocą AI"
                                             >
                                                 {aiLoading[f.key] ? (
@@ -243,14 +243,14 @@ export default function SyllabusForm({ data, onChange, providerConfig, language 
                                                     value={data[f.key] || ''}
                                                     onChange={(e) => handleChange(f.key, e.target.value)}
                                                     placeholder={f.placeholder || ''}
-                                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow"
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-shadow"
                                                 />
                                                 {f.ai && (
                                                     <button
                                                         type="button"
                                                         onClick={() => handleAIGenerate(f.key)}
                                                         disabled={aiLoading[f.key]}
-                                                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-100 text-indigo-600 p-1.5 rounded-md hover:bg-indigo-200 transition-colors disabled:opacity-50"
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-100 text-green-600 p-1.5 rounded-md hover:bg-green-200 transition-colors disabled:opacity-50"
                                                         title="Przetłumacz / Generuj za pomocą AI"
                                                     >
                                                         {aiLoading[f.key] ? (
